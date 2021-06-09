@@ -1,12 +1,11 @@
 import boto3
-import pandas
+import pandas as pd
 import sqlalchemy
 
 
 class TextFilePipeline:
 
     def __init__(self, database):
-
         # Setting up connection to sql server.
         server = 'localhost,1433'
         user = 'SA'
@@ -19,9 +18,9 @@ class TextFilePipeline:
 
         # Setting up connection to s3 resources from boto3.
         self.s3_resource = boto3.resource('s3')
+        self.s3_client = boto3.client('s3')
 
     def get_txt_file_key_list(self, bucket_name):
-
         # Extract all objects in the bucket specified by the user.
         files = self.s3_resource.Bucket(bucket_name).objects.all()
 
@@ -62,22 +61,74 @@ class TextFilePipeline:
                 return row[0]
 
     def load_data_into_sql(self, data_frame):
-        data_frame.to_sql('test', self.engine, if_exists='append', index=False)
+        data_frame.to_sql("test7", self.engine, if_exists='append', index=False)  # Need to change table name in the future.
+
+    def text_to_dataframe(self, bucket_name, key):
+        # Getting the text file object from s3.
+        s3_object = self.s3_client.get_object(
+            Bucket=bucket_name,
+            Key=key
+        )
+
+        # Reformatting the text file to get a list of string values
+        contents = s3_object['Body'].read()
+        text_lines_list = contents.decode("utf-8").split('\r\n')
+
+        # Reformatting into strings into different fields
+        extraction_to_list = self.__formatting(text_lines_list)
+        list_lists = self.__list_of_lists(extraction_to_list)
+        separating_fields = self.__separating_by_comma(list_lists)
+
+        # Loading the data into a dataframe
+        df = pd.DataFrame(separating_fields, columns=['Name', 'Psychometric',
+                                                      'Psychometric Score', 'Max Psychometric score',
+                                                      'Presentation', ' Presentation Score', 'Max Presentation Score'])
+        # Droping columns which aren't needed.
+        df.drop(df.columns[[1, 4]], axis=1, inplace=True)
+
+        return df
+
+    def __formatting(self, file_body):
+        # Replacing specific symbols and replacing them to commas to separate fields.
+        dashseperation = [item.replace("-", ",") for item in file_body]
+        slashseperation = [item.replace("/", ",") for item in dashseperation]
+        colonseperation = [item.replace(":", ",") for item in slashseperation]
+
+        # Removal of the location and date headers
+        minustopthreelines = colonseperation[3:]
+
+        # Removing the last line if it is an empty string
+        if minustopthreelines[-1] == '':
+            minustopthreelines.remove(minustopthreelines[-1])
+        return minustopthreelines
+
+    def __list_of_lists(self, long_list):
+        # Separating one long list into a list of lists.
+        separated_list = []
+        for index in long_list:
+            temp_list = [index]
+            separated_list.append(temp_list)
+        return separated_list
+
+    def __separating_by_comma(self, list_of_str_lists):
+        # Separating each list index into it's separate fields.
+        comma_sep = []
+        for index in list_of_str_lists:
+            index = str(index)
+            index = index.strip()
+            index = index.split(',')
+            index = [item.replace("'", "") for item in index]
+            index = [item.replace("[", "") for item in index]
+            index = [item.replace("]", "") for item in index]
+            comma_sep.append(index)
+        return comma_sep
 
 
-txt_file = TextFilePipeline()
-txt_list = txt_file.get_txt_file_key_list("data21-final-project")
-print(txt_list)
+# ---
+txt_file = TextFilePipeline("testing")
 
-s3_client = boto3.client('s3')
+list_of_text_files = txt_file.get_txt_file_key_list("data21-final-project")
 
-s3_object = s3_client.get_object(
-    Bucket="data21-final-project",
-    Key=txt_list[0]
-)
-#
-
-# #print(s3_object)
-# #print(s3_object['Body'].read())
-# text_lines_list = s3_object['Body'].read().decode("utf-8").split('\r\n')
-# print(text_lines_list)
+for x in list_of_text_files[0:2]:
+    data_frame = txt_file.text_to_dataframe("data21-final-project", x)
+    txt_file.load_data_into_sql(data_frame)
