@@ -43,14 +43,5 @@ class GetS3AcademyCSVinfo:
 
 # s3://data21-final-project/Academy/ is the location of the CSVs we want here
 csv_info_getter = GetS3AcademyCSVinfo('data21-final-project', 'Academy/')
-# ALW OUTPUT TEST 1
-# print('OUTPUT test 1')
-# print(csv_info_getter.s3_csv_keylist)
 
 academy_csv_data_dict = csv_info_getter.create_dict_of_csv_pd_dataframe()
-# ALW OUTPUT TEST 2
-# print('OUTPUT test 2')
-# print(len(academy_csv_data_dict))
-# for key in academy_csv_data_dict.keys():
-#     print(key, academy_csv_data_dict[key])
-
