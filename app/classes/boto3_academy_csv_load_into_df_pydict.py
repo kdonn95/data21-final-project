@@ -26,7 +26,7 @@ class GetS3CSVinfo:
                 csv_counter += 1
                 print(f'Found CSV file: {key_obj.key}')
                 s3_csv_key_list.append(key_obj.key)
-        print(f'Number of CSV files found in /{s3_sub_dir} = {csv_counter}')
+        print(f'Number of CSV files found in {self.bucket_name}/{self.s3_sub_dir} = {csv_counter}')
         return s3_csv_key_list
 
     def create_dict_of_csv_pd_dataframes(self):
@@ -50,7 +50,13 @@ academy_csv_info_getter = GetS3CSVinfo('data21-final-project', 'Academy/')
 talent_csv_info_getter = GetS3CSVinfo('data21-final-project', 'Talent/')
 
 academy_csv_df_dict = academy_csv_info_getter.create_dict_of_csv_pd_dataframes()
-print(academy_csv_df_dict)
+#print(academy_csv_df_dict)
 
 talent_csv_df_dict = talent_csv_info_getter.create_dict_of_csv_pd_dataframes()
-print(talent_csv_df_dict)
+#print(talent_csv_df_dict)
+print(talent_csv_df_dict.keys())
+
+Sept2019_Applicants_df = talent_csv_df_dict['Sept2019Applicants']
+print(list(Sept2019_Applicants_df.columns))
+
+print(list(Sept2019_Applicants_df.columns))
