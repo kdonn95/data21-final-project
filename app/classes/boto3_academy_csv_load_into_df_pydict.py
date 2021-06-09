@@ -3,10 +3,11 @@ from pprint import pprint
 import pandas as pd
 
 
-class GetS3AcademyCSVinfo:
+class GetS3CSVinfo:
+    # user manually sets S3 bucket name, sub-directory within that bucket
     def __init__(self, bucket_name, s3_sub_dir):
+        # 'resource','client' APIs are built into Boto3
         self.s3_client = boto3.client('s3')
-        # 'resource' api built into Boto3
         self.s3_resource = boto3.resource('s3')
         self.bucket_name = bucket_name
         self.s3_sub_dir = s3_sub_dir
@@ -17,31 +18,39 @@ class GetS3AcademyCSVinfo:
     def get_list_of_csv_files(self):
         s3_csv_key_list = []
         filekeys_in_bucket_subdir = self.bucket.objects.filter(Prefix=self.s3_sub_dir)
+        # keep track of the number of CSVs in S3 sub-directory
         csv_counter = 0
         for key_obj in filekeys_in_bucket_subdir:
             # only want CSVs in list!
             if key_obj.key[-4:] == '.csv':
                 csv_counter += 1
-                print(f'Found file: {key_obj.key}')
+                print(f'Found CSV file: {key_obj.key}')
                 s3_csv_key_list.append(key_obj.key)
-        print(csv_counter)
+        print(f'Number of CSV files found in /{s3_sub_dir} = {csv_counter}')
         return s3_csv_key_list
 
-    def create_dict_of_csv_pd_dataframe(self):
+    def create_dict_of_csv_pd_dataframes(self):
         csv_dict_keyed_by_course = {}
         for s3_key in self.s3_csv_keylist:
             csv_s3_object = self.s3_client.get_object(
                 Bucket=self.bucket_name,  # bucket_name is a string
                 Key=s3_key  # s3_key is a string
             )
-            # string splitting to return course name & date from CSV filename, e.g. 'Business_29_2019-11-18'
-            # as (string) key for dictionary whose values are Pandas dataframes
+            # string splitting to return course name & date from CSV filename, e.g. 'Business_29_2019-11-18',
+            # 'Sept2019Applicants' as key for dictionary whose values are Pandas dataframes
             course_name_date = (s3_key.split('/')[-1]).split('.')[0]
+            # read csv into pandas dataframe
             csv_dict_keyed_by_course[course_name_date] = pd.read_csv(csv_s3_object['Body'])
         return csv_dict_keyed_by_course
 
 
-# s3://data21-final-project/Academy/ is the location of the CSVs we want here
-csv_info_getter = GetS3AcademyCSVinfo('data21-final-project', 'Academy/')
+# s3://data21-final-project/ is the location of the CSVs we want here
+# 'Academy/' and 'Talent/' are the sub-directories with CSVs
+academy_csv_info_getter = GetS3CSVinfo('data21-final-project', 'Academy/')
+talent_csv_info_getter = GetS3CSVinfo('data21-final-project', 'Talent/')
 
-academy_csv_data_dict = csv_info_getter.create_dict_of_csv_pd_dataframe()
+academy_csv_df_dict = academy_csv_info_getter.create_dict_of_csv_pd_dataframes()
+print(academy_csv_df_dict)
+
+talent_csv_df_dict = talent_csv_info_getter.create_dict_of_csv_pd_dataframes()
+print(talent_csv_df_dict)
