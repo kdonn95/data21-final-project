@@ -1,6 +1,7 @@
 import boto3
-from pprint import pprint
+#from pprint import pprint
 import pandas as pd
+#from db/db_session import engine
 
 
 class GetS3CSVinfo:
@@ -57,6 +58,39 @@ talent_csv_df_dict = talent_csv_info_getter.create_dict_of_csv_pd_dataframes()
 print(talent_csv_df_dict.keys())
 
 Sept2019_Applicants_df = talent_csv_df_dict['Sept2019Applicants']
+Business30_20191230_df = academy_csv_df_dict['Business_30_2019-12-30']
 print(list(Sept2019_Applicants_df.columns))
 
-print(list(Sept2019_Applicants_df.columns))
+print(list(Business30_20191230_df.columns))
+
+Sept2019_Applicants_ToCandidate_df = Sept2019_Applicants_df['name', 'gender', 'dob', 'email', 'city', 'address', 'postcode', 'phone_number', 'uni', 'degree', 'invited_date','month', 'invited_by']
+Sept2019_Applicants_ToCandidate_df.to_sql('Candidate')
+Business30_20191230_df = Business30_20191230_df
+Business30_20191230_df.to_sql()
+"""
+Sept2019Applicants.csv columns => db class.columns
+id = --delete, autogenerate new ones--,
+name = Candidate.candidate_name,
+gender = Candidate.gender,
+dob = Candidate.dob,
+email = Candidate.email,
+city = Candidate.city,
+address = Candidate.address,
+postcode = Candidate.postcode,
+phone_number = Candidate.phone_number,
+uni	degree = Candidate.uni_degree,
+invited_date = Candidate.invited_date,
+month = Candidate.invited_date,
+invited_by = Candidate.invited_by
+
+Business_30_2019-12-30.csv columns => db class.columns
+'name',
+'trainer',
+'Analytic_W1' = Scores.analytic and Scores.week_no,
+'Independent_W1' = Scores.independent and Scores.week_no,
+'Determined_W1' = Scores.determined and Scores.week_no,
+'Professional_W1' = Scores.professional and Scores.week_no,
+'Studious_W1' = Scores.studious and Scores.week_no,
+'Imaginative_W1' = Scores.imaginative and Scores.week_no,
+same for all other columns (different Scores.week_no value)
+"""
