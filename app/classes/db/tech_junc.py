@@ -8,6 +8,3 @@ class Candidate(SqlAlchemyBase):
     tech_id = Column(Integer, ForeignKey('tech.tech_id'))
     candidate_id = Column(Integer, ForeignKey('candidate.candidate_id'))
     score = Column(Integer)
-
-
-
