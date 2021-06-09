@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, Boolean, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey
 from app.classes.db.modelbase import SqlAlchemyBase
 
 
+# creation of spartan table model
 class Spartan(SqlAlchemyBase):
     __tablename__ = 'spartan'
 
