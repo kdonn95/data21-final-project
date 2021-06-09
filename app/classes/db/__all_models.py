@@ -1,0 +1,1 @@
+import app.classes.db.candidate
