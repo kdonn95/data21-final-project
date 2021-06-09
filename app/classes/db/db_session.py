@@ -1,11 +1,11 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
 from sqlalchemy.orm import Session
-from sqlalchemy.orm.session import sessionmaker
 
 from app.classes.db.modelbase import SqlAlchemyBase
 
 __factory = None
+
 
 def global_init(db_str: str):
     global __factory
@@ -31,5 +31,3 @@ def create_session() -> Session:
     session.expire_on_commit = False
 
     return session
-
-global_init('mssql+pyodbc://SA:Passw0rd2018@localhost,1433/Data21Final?driver=SQL+Server')
