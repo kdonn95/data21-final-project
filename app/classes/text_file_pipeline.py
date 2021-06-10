@@ -62,7 +62,7 @@ class TextFilePipeline:
                 return row[0]
 
     def load_data_into_sql(self, data_frame):
-        data_frame = data_frame.drop(columns="name")
+        data_frame = data_frame.drop(columns="Name")
         data_frame.to_sql("test", self.engine, if_exists='append', index=False)
 
     def text_to_dataframe(self, bucket_name, key):
@@ -76,6 +76,7 @@ class TextFilePipeline:
         contents = s3_object['Body'].read()
         text_lines_list = contents.decode("utf-8").split('\r\n')
 
+        # Extracting the location and date of the tests and presentation.
         loc_date = self.__get_date_location(text_lines_list)
 
         # Reformatting into strings into different fields
@@ -133,7 +134,7 @@ class TextFilePipeline:
         # Separating location and date
         top_two_lines = file_body[:2]
         date_str = top_two_lines[0]
-        location = top_two_lines[1]
+        location = top_two_lines[1].title()
 
         # Converting the string into a datetime format
         date_str = date_str.split(' ', 1)[1]
