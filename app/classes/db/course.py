@@ -10,7 +10,4 @@ class Course(SqlAlchemyBase):
     trainer_id = Column(Integer, ForeignKey('trainer.trainer_id'))
     course_name = Column(String)
     type = Column(String)
-<<<<<<< HEAD
 
-=======
->>>>>>> b86924fda68a90ed9e915790e6b120e95d073937
