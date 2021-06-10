@@ -60,7 +60,7 @@ Before you continue, ensure you have met the following requirements:
 <li>Edward Blundell </li> 
 <li>Giacomo Allen </li> 
 <li>Kathryn Donnell </li>
-<li>Keiren Badesha </li>
+<li>Keiran Badesha </li>
 <li>Lewis Twelftree </li>
 <li>Thomas  Woodbridge</li>
 </ul>
