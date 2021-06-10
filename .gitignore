@@ -129,5 +129,9 @@ dmypy.json
 .pyre/
 
 # IDE Settings
-.idea/
-.vscode/
+
+.idea
+.vscode
+
+# My folder for working:
+work/
