@@ -36,7 +36,7 @@ This project is a package that creates an ETL pipeline of the Sparta Academy. Th
 </ol>
 
 Extracted Data is Transform into usable formarts and loaded into an SQL Server Database to allow ease of<br>
-ease of querying candidate information and academy information.
+of querying candidate information and academy information.
 
 Through this project users will be able able to query the newly created database to get a single customer view on the data.<br>
 Users will also be able to connect their query to a data analytic/visualisation tool of choice to perform and analysis and/or create<br> dashboards 
