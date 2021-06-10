@@ -42,16 +42,16 @@ class TextFilePipeline:
         for index in list(data_frame.index):
             name = data_frame.loc[index, "name"]
 
-            # If the name isn't in the candidate table, an entry in that table will be created for him.
+            # If the name isn't in the candidate table, an entry in that table will be created for them.
             if name not in names_list:
                 df = pd.DataFrame([name], columns=['candidate_name'])
                 df.to_sql('candidate', self.engine, if_exists='append', index=False)
 
-            # Updating candidate's ID.
+            # Updating candidate's ID in the .
             candidate_id = self.__get_candidate_id(name)
             data_frame.loc[index, "candidate_id"] = candidate_id
 
-    def __get_candidate_id(self, name:str):
+    def __get_candidate_id(self, name: str):
         # Get list of candidate names and ids.
         id_name_list = list(self.engine.execute('SELECT candidate_id, candidate_name FROM candidate'))
 
@@ -61,7 +61,8 @@ class TextFilePipeline:
                 return row[0]
 
     def load_data_into_sql(self, data_frame):
-        data_frame.to_sql("test7", self.engine, if_exists='append', index=False)  # Need to change table name in the future.
+        data_frame = data_frame.drop(columns="name")
+        data_frame.to_sql("test", self.engine, if_exists='append', index=False)
 
     def text_to_dataframe(self, bucket_name, key):
         # Getting the text file object from s3.
@@ -127,8 +128,9 @@ class TextFilePipeline:
 # ---
 txt_file = TextFilePipeline("testing")
 
-list_of_text_files = txt_file.get_txt_file_key_list("data21-final-project")
 
-for x in list_of_text_files[0:2]:
-    data_frame = txt_file.text_to_dataframe("data21-final-project", x)
-    txt_file.load_data_into_sql(data_frame)
+# list_of_text_files = txt_file.get_txt_file_key_list("data21-final-project")
+#
+# for x in list_of_text_files[0:2]:
+#     data_frame = txt_file.text_to_dataframe("data21-final-project", x)
+#     txt_file.load_data_into_sql(data_frame)

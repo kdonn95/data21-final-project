@@ -131,3 +131,6 @@ dmypy.json
 # IDE Settings
 .idea
 .vscode
+
+# My folder for working:
+work/
