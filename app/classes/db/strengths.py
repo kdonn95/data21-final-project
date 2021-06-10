@@ -2,11 +2,7 @@ from sqlalchemy import Column, Integer, String
 from app.classes.db.modelbase import SqlAlchemyBase
 
 
-
-
-
 # creation of strengths table model
-
 class Strengths(SqlAlchemyBase):
     __tablename__ = 'strengths'
 
