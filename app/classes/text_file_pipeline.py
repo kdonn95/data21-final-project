@@ -41,7 +41,7 @@ class TextFilePipeline:
         # Check to see if candidate has an entry in the candidate table.
 
         for index in list(data_frame.index):
-            name = data_frame.loc[index, "name"]
+            name = data_frame.loc[index, "Name"].title()
 
             # If the name isn't in the candidate table, an entry in that table will be created for them.
             if name not in names_list:
@@ -51,6 +51,17 @@ class TextFilePipeline:
             # Updating candidate's ID in the .
             candidate_id = self.__get_candidate_id(name)
             data_frame.loc[index, "candidate_id"] = candidate_id
+
+        # Removes the Name column from the data frame as it is no longer needed.
+        data_frame = data_frame.drop(columns="Name")
+        return data_frame
+
+    def transform_string_to_int(self, data_frame, columns_list):
+        # Takes a dataframe with numbers as strings and converts them to an int type.
+        for index in list(data_frame.index):
+            for column_name in columns_list:
+                data_frame.loc[index, column_name] = int(data_frame.loc[index, column_name])
+        return data_frame
 
     def __get_candidate_id(self, name: str):
         # Get list of candidate names and ids.
@@ -62,7 +73,7 @@ class TextFilePipeline:
                 return row[0]
 
     def load_data_into_sql(self, data_frame):
-        data_frame = data_frame.drop(columns="Name")
+        # Loads dataframe into sql database.
         data_frame.to_sql("test", self.engine, if_exists='append', index=False)
 
     def text_to_dataframe(self, bucket_name, key):
@@ -88,8 +99,8 @@ class TextFilePipeline:
         # Loading the data into a dataframe
         df = pd.DataFrame(final_list, columns=['Name', 'candidate_id', 'date', 'location', 'Psychometric',
                                                'psychometrics', 'psychometrics_max',
-                                               'Presentation', ' presentation', 'presentation_max'])
-        # Droping columns which aren't needed.
+                                               'Presentation', 'presentation', 'presentation_max'])
+        # Dropping columns which aren't needed.
         df.drop(df.columns[[4, 7]], axis=1, inplace=True)
 
         return df
@@ -152,14 +163,3 @@ class TextFilePipeline:
             line.insert(2, date_loc[1])
             line.insert(1, 0)
         return other_fields
-
-
-# ---
-txt_file = TextFilePipeline("testing")
-
-
-# list_of_text_files = txt_file.get_txt_file_key_list("data21-final-project")
-#
-# for x in list_of_text_files[0:2]:
-#     data_frame = txt_file.text_to_dataframe("data21-final-project", x)
-#     txt_file.load_data_into_sql(data_frame)
