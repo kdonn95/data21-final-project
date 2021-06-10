@@ -3,6 +3,8 @@ import pandas as pd
 
 
 def test_return_bucket_json_body():
+    """test
+    """
     je = JsonExtract([])
     body = je.return_bucket_json_body('Talent/10383.json')
     assert body == {'name': 'Stillmann Castano',
