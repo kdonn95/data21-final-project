@@ -1,6 +1,7 @@
 import boto3
 import pandas as pd
 import sqlalchemy
+from datetime import datetime
 
 
 class TextFilePipeline:
@@ -75,17 +76,20 @@ class TextFilePipeline:
         contents = s3_object['Body'].read()
         text_lines_list = contents.decode("utf-8").split('\r\n')
 
+        loc_date = self.__get_date_location(text_lines_list)
+
         # Reformatting into strings into different fields
         extraction_to_list = self.__formatting(text_lines_list)
         list_lists = self.__list_of_lists(extraction_to_list)
         separating_fields = self.__separating_by_comma(list_lists)
+        final_list = self.__inserting_loc_date(loc_date, separating_fields)
 
         # Loading the data into a dataframe
-        df = pd.DataFrame(separating_fields, columns=['Name', 'Psychometric',
-                                                      'Psychometric Score', 'Max Psychometric score',
-                                                      'Presentation', ' Presentation Score', 'Max Presentation Score'])
+        df = pd.DataFrame(final_list, columns=['Name', 'date', 'location', 'Psychometric',
+                                               'psychometrics', 'psychometrics_max',
+                                               'Presentation', ' presentation', 'presentation_max'])
         # Droping columns which aren't needed.
-        df.drop(df.columns[[1, 4]], axis=1, inplace=True)
+        df.drop(df.columns[[3, 6]], axis=1, inplace=True)
 
         return df
 
@@ -116,13 +120,36 @@ class TextFilePipeline:
         comma_sep = []
         for index in list_of_str_lists:
             index = str(index)
-            index = index.strip()
             index = index.split(',')
+            index = [item.strip() for item in index]
             index = [item.replace("'", "") for item in index]
             index = [item.replace("[", "") for item in index]
             index = [item.replace("]", "") for item in index]
             comma_sep.append(index)
         return comma_sep
+
+    def __get_date_location(self, file_body):
+        new_list = []
+        # Separating location and date
+        top_two_lines = file_body[:2]
+        date_str = top_two_lines[0]
+        location = top_two_lines[1]
+
+        # Converting the string into a datetime format
+        date_str = date_str.split(' ', 1)[1]
+        date = datetime.strptime(date_str, '%d %B %Y')
+        date = date.strftime('%Y-%m-%d')
+
+        # Inserting date and location back into a list
+        new_list.append(date)
+        new_list.append(location)
+        return new_list
+
+    def __inserting_loc_date(self, date_loc, other_fields):
+        for line in other_fields:
+            line.insert(1, date_loc[0])
+            line.insert(2, date_loc[1])
+        return other_fields
 
 
 # ---
