@@ -52,6 +52,7 @@ Before you continue, ensure you have met the following requirements:
 ## Contributors
 <ul>
 <li>Alexander Lisboa-Wright </li> 
+<li>Abirame Kumarathasan</li>
 <li>Andrei Bila  </li> 
 <li>Arcan Abdo </li> 
 <li>Cliff Chavhundura  </li>
