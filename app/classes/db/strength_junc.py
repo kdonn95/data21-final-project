@@ -1,4 +1,3 @@
-
 from sqlalchemy import Column, Integer, ForeignKey
 from app.classes.db.modelbase import SqlAlchemyBase
 
