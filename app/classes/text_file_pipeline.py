@@ -86,11 +86,11 @@ class TextFilePipeline:
         final_list = self.__inserting_loc_date(loc_date, separating_fields)
 
         # Loading the data into a dataframe
-        df = pd.DataFrame(final_list, columns=['Name', 'date', 'location', 'Psychometric',
+        df = pd.DataFrame(final_list, columns=['Name', 'candidate_id', 'date', 'location', 'Psychometric',
                                                'psychometrics', 'psychometrics_max',
                                                'Presentation', ' presentation', 'presentation_max'])
         # Droping columns which aren't needed.
-        df.drop(df.columns[[3, 6]], axis=1, inplace=True)
+        df.drop(df.columns[[4, 7]], axis=1, inplace=True)
 
         return df
 
@@ -150,6 +150,7 @@ class TextFilePipeline:
         for line in other_fields:
             line.insert(1, date_loc[0])
             line.insert(2, date_loc[1])
+            line.insert(1, 0)
         return other_fields
 
 
