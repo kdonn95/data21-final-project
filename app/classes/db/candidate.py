@@ -14,6 +14,7 @@ class Candidate(SqlAlchemyBase):
     financial_support = Column(Boolean)
     result = Column(Boolean)
     course_interest = Column(String)
+    # --------- ^ json, csv below -----------
     gender = Column(String)
     dob = Column(Date)
     email = Column(String)

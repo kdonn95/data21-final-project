@@ -1,8 +1,16 @@
 import boto3
-#from pprint import pprint
 import pandas as pd
-#from db/db_session import engine
-
+"""
+import sqlalchemy
+server = 'localhost,1433'
+database = 'Northwind'
+user = 'SA'
+password = 'Passw0rd2018'
+driver = 'SQL+Server'
+# ODBC+Driver+17+for+
+engine = sqlalchemy.create_engine(f"mssql+pyodbc://{user}:{password}@{server}/{database}?driver={driver}")
+connection = engine.connect()
+"""
 
 class GetS3CSVinfo:
     # user manually sets S3 bucket name, sub-directory within that bucket
@@ -61,36 +69,21 @@ Sept2019_Applicants_df = talent_csv_df_dict['Sept2019Applicants']
 Business30_20191230_df = academy_csv_df_dict['Business_30_2019-12-30']
 print(list(Sept2019_Applicants_df.columns))
 
+# DAVID FEEDBACK: USE LOGGING, NOT PRINTING!!!!
 print(list(Business30_20191230_df.columns))
+print(type(Sept2019_Applicants_df['degree'][0]))
+print(Sept2019_Applicants_df['degree'].head())
 
-Sept2019_Applicants_ToCandidate_df = Sept2019_Applicants_df['name', 'gender', 'dob', 'email', 'city', 'address', 'postcode', 'phone_number', 'uni', 'degree', 'invited_date','month', 'invited_by']
-Sept2019_Applicants_ToCandidate_df.to_sql('Candidate')
-Business30_20191230_df = Business30_20191230_df
-Business30_20191230_df.to_sql()
+# tested: DFs load nicely into SQL, ran a trial row for our big 'candidate' SQL table into local (Northwind) host
+#Sept2019_Applicants_df.to_sql('Cand_test', engine)
 """
-Sept2019Applicants.csv columns => db class.columns
-id = --delete, autogenerate new ones--,
-name = Candidate.candidate_name,
-gender = Candidate.gender,
-dob = Candidate.dob,
-email = Candidate.email,
-city = Candidate.city,
-address = Candidate.address,
-postcode = Candidate.postcode,
-phone_number = Candidate.phone_number,
-uni	degree = Candidate.uni_degree,
-invited_date = Candidate.invited_date,
-month = Candidate.invited_date,
-invited_by = Candidate.invited_by
-
-Business_30_2019-12-30.csv columns => db class.columns
-'name',
-'trainer',
-'Analytic_W1' = Scores.analytic and Scores.week_no,
-'Independent_W1' = Scores.independent and Scores.week_no,
-'Determined_W1' = Scores.determined and Scores.week_no,
-'Professional_W1' = Scores.professional and Scores.week_no,
-'Studious_W1' = Scores.studious and Scores.week_no,
-'Imaginative_W1' = Scores.imaginative and Scores.week_no,
-same for all other columns (different Scores.week_no value)
+candidate_test_data = [[1029343, 'john doe'.title(), '19-04-2018', 1, 1, 1, 1, 'Data', 'Male', '05-08-1996',
+                        'johndoe@fakeaddress.com', 'Narnia', '123 Fake street', 'AS14 4AN', '+44 1437 583539',
+                        'Necromancy', '22-08', 'Trainer Aslan']]
+candidate_col_names = ['candidate_id', 'candidate_name', 'date', 'self_development', 'geo_flex', 'financial_support',
+                       'result', 'course_interest', 'gender', 'dob', 'email', 'city', 'address', 'postcode',
+                       'phone_number', 'uni_degree', 'invited_date', 'invited_by']
+candidate_test_df = pd.DataFrame(candidate_test_data, columns=candidate_col_names)
+print(candidate_test_df)
+candidate_test_df.to_sql('Candidate', engine, if_exists='append')
 """
