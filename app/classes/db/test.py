@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, Boolean, String, Date,ForeignKey
+from sqlalchemy import Column, Integer, Boolean, String, Date, ForeignKey
 from app.classes.db.modelbase import SqlAlchemyBase
 
-class Candidate(SqlAlchemyBase):
+
+class Test(SqlAlchemyBase):
     __tablename__ = 'test'
 
     candidate_id = Column(Integer, ForeignKey('candidate.candidate_id'))
@@ -11,5 +12,3 @@ class Candidate(SqlAlchemyBase):
     presentation_max = Column(Integer)
     psychometrics = Column(Integer)
     psychometrics_max = Column(Integer)
-
-
