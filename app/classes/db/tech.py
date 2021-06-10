@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, Boolean, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String
 from app.classes.db.modelbase import SqlAlchemyBase
 
 
+# creation of tech table model
 class Tech(SqlAlchemyBase):
     __tablename__ = 'tech'
 

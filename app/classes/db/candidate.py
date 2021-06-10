@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, Boolean, String, Date
 from app.classes.db.modelbase import SqlAlchemyBase
 
 
+# creation of candidate table model
 class Candidate(SqlAlchemyBase):
     __tablename__ = 'candidate'
 
