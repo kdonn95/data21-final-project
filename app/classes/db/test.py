@@ -1,11 +1,8 @@
-
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from app.classes.db.modelbase import SqlAlchemyBase
 
 
-
 # creation of test table model
-
 class Test(SqlAlchemyBase):
     __tablename__ = 'test'
 
