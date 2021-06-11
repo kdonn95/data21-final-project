@@ -1,5 +1,6 @@
 from app.classes.db.db_session import global_init
 from app.classes.text_file_pipeline import TextFilePipeline
+import logging
 
 SERVER = 'localhost,1433'
 DATABASE = 'Data21Final'
