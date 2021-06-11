@@ -1,3 +1,4 @@
+import json
 from app.classes.json_extract import JsonExtract
 from tabulate import tabulate
 import datetime
@@ -30,6 +31,8 @@ class JsonTransform:
 jt = JsonTransform()
 print(page1_df.columns)
 
+page1_df = page1_df.fillna(0)
+
 all_details = {'name': [],
                'date': [],
                'tech_self_score': [],
@@ -42,6 +45,10 @@ all_details = {'name': [],
                'course_interest': []
 }
 
+tech_list = []
+strength_list = []
+weakness_list = []
+
 for name in page1_df['name']:
     new_name = jt.clean_text(name)
     all_details['name'].append(new_name)
@@ -51,13 +58,27 @@ for date in page1_df['date']:
     all_details['date'].append(new_date)
 
 for tech_score in page1_df['tech_self_score']:
-    all_details['tech_self_score'].append(tech_score)
+    if tech_score == 0:
+        all_details['tech_self_score'].append({})
+    else:
+        all_details['tech_self_score'].append(tech_score)
+
+for tech_score in all_details['tech_self_score']:
+    for tech in tech_score.keys():
+        if tech not in tech_list:
+            tech_list.append(tech)
 
 for strength in page1_df['strengths']:
     all_details['strengths'].append(strength)
+    for i in strength:
+        if i not in strength_list:
+            strength_list.append(i)
 
 for weakness in page1_df['weaknesses']:
     all_details['weaknesses'].append(weakness)
+    for j in weakness:
+        if j not in weakness_list:
+            weakness_list.append(j)
 
 for self_dev in page1_df['self_development']:
     self_dev = jt.to_bool(self_dev)
@@ -81,4 +102,6 @@ for course in page1_df['course_interest']:
 
 df = pd.DataFrame(all_details)
 
-print(tabulate(df))
+print(sorted(tech_list))
+print(sorted(strength_list))
+print(sorted(weakness_list))
