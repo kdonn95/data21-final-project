@@ -1,14 +1,11 @@
 from app.classes.db.db_session import global_init
+from app.classes.get_config import GetConfig
 
-SERVER = 'localhost,1433'
-DATABASE = 'Data21Final'
-USER = 'SA'
-PASSWORD = 'Passw0rd2018'
-DRIVER = 'SQL+Server'
+config = GetConfig()
 
 conn_str = (
-            f'mssql+pyodbc://{USER}:{PASSWORD}' +
-            f'@{SERVER}/master?driver={DRIVER}'
+            f'mssql+pyodbc://{config.user}:{config.password}' +
+            f'@{config.server}/master?driver={config.driver}'
             )
 
-global_init(conn_str, DATABASE)
+engine = global_init(conn_str, config.database, "NORMAL")

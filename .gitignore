@@ -129,7 +129,14 @@ dmypy.json
 .pyre/
 
 
-.idea/
+# IDE Settings
 
-.vscode/
+.idea
+.vscode
+
+# My folder for working:
+work/
+
+# password file
+password.ini
 
