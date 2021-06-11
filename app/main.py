@@ -1,6 +1,7 @@
 from app.classes.db.db_session import global_init
 from app.classes.text_file_pipeline import TextFilePipeline
 from app.classes.get_config import GetConfig
+import logging
 
 config = GetConfig()
 
