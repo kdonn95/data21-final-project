@@ -2,6 +2,7 @@ import json
 import boto3
 import pandas as pd
 
+
 class JsonExtract:
     def __init__(self, used_keylist):
         self.bucket_name = 'data21-final-project'
@@ -26,14 +27,12 @@ class JsonExtract:
             outlist.append(chunk)
         return outlist
 
-
     def return_bucket_json_body(self, key):
         """takes bucket_name and key
-        returs json row of body"""
+        returns json row of body"""
         obj = self.s3_client.get_object(Bucket=self.bucket_name, Key=key)
         contents = obj["Body"].read().decode('utf8')
         return json.loads(contents)
-
 
     def json_file_to_dataframe(self, keylist):
         """takes a list of tuples (bucket_name, key)
@@ -47,7 +46,6 @@ class JsonExtract:
             row = self.return_bucket_json_body(key)
             rows_df = rows_df.append(row, ignore_index=True)
         return rows_df
-
 
     def yield_pages(self):
         """yields each dataframe from s3 pages
