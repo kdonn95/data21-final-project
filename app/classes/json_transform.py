@@ -4,9 +4,10 @@ from datetime import datetime
 import datetime
 import pandas as pd
 
-# je = JsonExtract([])
-# page1_df = next(je.yield_pages())
-
+je = JsonExtract([])
+page1_df = next(je.yield_pages())
+print(page1_df.columns)
+print(tabulate(page1_df))
 
 class JsonTransform:
     def __init__(self):
