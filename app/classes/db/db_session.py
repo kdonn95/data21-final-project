@@ -44,6 +44,8 @@ def global_init(db_str: str, db_name):
     # create all tables based on models
     SqlAlchemyBase.metadata.create_all(engine)
 
+    return engine
+
 
 # useful for single sql inserts, may be overrules by pd.df.to_sql
 def create_session() -> Session:
