@@ -8,4 +8,3 @@ class Location(SqlAlchemyBase):
 
     location_id = Column(Integer, primary_key=True)
     location = Column(String)
-
