@@ -6,7 +6,7 @@ from app.classes.db.strength_junc import StrenghtJunc
 from app.classes.db.strengths import Strengths
 from app.classes.db.tech import Tech
 from app.classes.db.tech_junc import TechJunc
-from app.classes.db.test import Test
+from app.classes.db.sparta_day import Test
 from app.classes.db.trainer import Trainer
 from app.classes.db.weaknesses import Weaknesses
 from app.classes.db.weaknesses_junc import WeaknessesJunc
