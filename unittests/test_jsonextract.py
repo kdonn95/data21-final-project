@@ -1,4 +1,4 @@
-from app.classes.jsonextract import JsonExtract
+from app.classes.json_extract import JsonExtract
 import pandas as pd
 
 

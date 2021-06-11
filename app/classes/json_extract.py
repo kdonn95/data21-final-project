@@ -21,8 +21,8 @@ class JsonExtract:
         new_keylist = list(set(keylist) ^ set(self.used_keylist))
         new_keylist.sort()
         outlist = []
-        for i in range(0, len(new_keylist), 300):
-            chunk = new_keylist[i:i + 300]
+        for i in range(0, len(new_keylist), 20):
+            chunk = new_keylist[i:i + 20]
             outlist.append(chunk)
         return outlist
 
