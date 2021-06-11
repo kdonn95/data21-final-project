@@ -1,15 +1,12 @@
 from app.classes.db.db_session import global_init
+from app.classes.get_config import GetConfig
 import sqlalchemy
 
-SERVER = 'localhost,1433'
-DATABASE = 'Data21Final'
-USER = 'SA'
-PASSWORD = 'Passw0rd2018'
-DRIVER = 'SQL+Server'
+config = GetConfig()
 
 conn_str = (
-            f'mssql+pyodbc://{USER}:{PASSWORD}' +
-            f'@{SERVER}/master?driver={DRIVER}'
+            f'mssql+pyodbc://{config.user}:{config.password}' +
+            f'@{config.server}/master?driver={config.driver}'
             )
 
 engine = sqlalchemy.create_engine(conn_str)
@@ -20,14 +17,14 @@ def test_db_creation():
     # drop existing table
     engine.execute(f"""
                     USE master
-                    DROP DATABASE IF EXISTS {DATABASE};
+                    DROP DATABASE IF EXISTS {config.database};
                     """)
 
     # initialise database
-    global_init(conn_str, DATABASE)
+    global_init(conn_str, config.database)
 
     # get list of databases
     dbs = engine.execute(f"SELECT name FROM sys.databases")
     dbs = [d[0] for d in dbs]
 
-    assert DATABASE in dbs
+    assert config.database in dbs

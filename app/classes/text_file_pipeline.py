@@ -5,14 +5,9 @@ from datetime import datetime
 
 
 class TextFilePipeline:
-
-    def __init__(self, database):
+    def __init__(self, engine):
         # Setting up connection to sql server.
-        server = 'localhost,1433'
-        user = 'SA'
-        password = 'Passw0rd2018'
-        driver = 'SQL+Server'
-        self.engine = sqlalchemy.create_engine(f"mssql+pyodbc://{user}:{password}@{server}/{database}?driver={driver}")
+        self.engine = engine
 
         # Connecting to the sql server.
         connection = self.engine.connect()
@@ -28,7 +23,8 @@ class TextFilePipeline:
         # Creating an empty list to store the text file objects.
         txt_files = []
 
-        # Looking through every object in the bucket and getting only the txt files.
+        # Looking through every object in the bucket 
+        # and getting only the txt files.
         for file in files:
             if ".txt" == file.key[-4:]:
                 txt_files.append(file.key)
@@ -36,36 +32,47 @@ class TextFilePipeline:
 
     def update_candidate_id(self, data_frame):
         # Get list of names of candidates entered in the candidate table.
-        names_list = list(self.engine.execute('SELECT candidate_name FROM candidate'))
+        names_list = list(self.engine.execute("""
+                                            SELECT candidate_name 
+                                            FROM candidate
+                                            """))
 
         # Check to see if candidate has an entry in the candidate table.
 
         for index in list(data_frame.index):
             name = data_frame.loc[index, "Name"].title()
 
-            # If the name isn't in the candidate table, an entry in that table will be created for them.
+            # If the name isn't in the candidate table, 
+            # an entry in that table will be created for them.
             if name not in names_list:
                 df = pd.DataFrame([name], columns=['candidate_name'])
-                df.to_sql('candidate', self.engine, if_exists='append', index=False)
+                df.to_sql('candidate', self.engine, 
+                            if_exists='append', index=False)
 
             # Updating candidate's ID in the .
             candidate_id = self.__get_candidate_id(name)
             data_frame.loc[index, "candidate_id"] = candidate_id
 
-        # Removes the Name column from the data frame as it is no longer needed.
+        # Removes the Name column from the data frame 
+        # as it is no longer needed.
         data_frame = data_frame.drop(columns="Name")
         return data_frame
 
     def transform_string_to_int(self, data_frame, columns_list):
-        # Takes a dataframe with numbers as strings and converts them to an int type.
+        # Takes a dataframe with numbers as strings 
+        # and converts them to an int type.
         for index in list(data_frame.index):
             for column_name in columns_list:
-                data_frame.loc[index, column_name] = int(data_frame.loc[index, column_name])
+                data_frame.loc[index, column_name] = int(data_frame.loc[index, 
+                                                                column_name])
         return data_frame
 
     def __get_candidate_id(self, name: str):
         # Get list of candidate names and ids.
-        id_name_list = list(self.engine.execute('SELECT candidate_id, candidate_name FROM candidate'))
+        id_name_list = list(self.engine.execute("""
+                                                SELECT candidate_id, 
+                                                candidate_name FROM candidate
+                                                """))
 
         # Finds the candidate id and returns it.
         for row in id_name_list:
@@ -97,16 +104,26 @@ class TextFilePipeline:
         final_list = self.__inserting_loc_date(loc_date, separating_fields)
 
         # Loading the data into a dataframe
-        df = pd.DataFrame(final_list, columns=['Name', 'candidate_id', 'date', 'location', 'Psychometric',
-                                               'psychometrics', 'psychometrics_max',
-                                               'Presentation', 'presentation', 'presentation_max'])
+        df = pd.DataFrame(final_list, columns=[
+                                            'Name', 
+                                            'candidate_id', 
+                                            'date', 
+                                            'location', 
+                                            'Psychometric',
+                                            'psychometrics', 
+                                            'psychometrics_max',
+                                            'Presentation', 
+                                            'presentation', 
+                                            'presentation_max'
+                                            ])
         # Dropping columns which aren't needed.
         df.drop(df.columns[[4, 7]], axis=1, inplace=True)
 
         return df
 
     def __formatting(self, file_body):
-        # Replacing specific symbols and replacing them to commas to separate fields.
+        # Replacing specific symbols and replacing them 
+        # to commas to separate fields.
         dashseperation = [item.replace("-", ",") for item in file_body]
         slashseperation = [item.replace("/", ",") for item in dashseperation]
         colonseperation = [item.replace(":", ",") for item in slashseperation]

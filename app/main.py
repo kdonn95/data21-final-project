@@ -1,26 +1,23 @@
 from app.classes.db.db_session import global_init
 from app.classes.text_file_pipeline import TextFilePipeline
+from app.classes.get_config import GetConfig
 import logging
 
-SERVER = 'localhost,1433'
-DATABASE = 'Data21Final'
-USER = 'SA'
-PASSWORD = 'Passw0rd2018'
-DRIVER = 'SQL+Server'
+config = GetConfig()
 
 conn_str = (
-            f'mssql+pyodbc://{USER}:{PASSWORD}' +
-            f'@{SERVER}/master?driver={DRIVER}'
+            f'mssql+pyodbc://{config.user}:{config.password}' +
+            f'@{config.server}/master?driver={config.driver}'
             )
 
-global_init(conn_str, DATABASE)
+engine = global_init(conn_str, config.database)
 
 
 # Uploading Data from text files into sql server.
 BUCKET_NAME = "data21-final-project"
 
 # creating an object for the text file pipeline:
-txt_file_pipeline = TextFilePipeline("Data21Final")
+txt_file_pipeline = TextFilePipeline(engine)
 
 # Getting a list of keys with all text files in the s3 bucket.
 list_of_text_files = txt_file_pipeline.get_txt_file_key_list(BUCKET_NAME)
