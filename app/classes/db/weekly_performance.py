@@ -3,11 +3,11 @@ from app.classes.db.modelbase import SqlAlchemyBase
 
 
 # creation of scores table model
-class Scores(SqlAlchemyBase):
-    __tablename__ = 'scores'
+class WeeklyPerformance(SqlAlchemyBase):
+    __tablename__ = 'weekly_performance'
 
-    spartan_id = Column(Integer, 
-                        ForeignKey('spartan.spartan_id'), primary_key=True)
+    candidate_id = Column(Integer,
+                        ForeignKey('candidate.candidate_id'), primary_key=True)
     course_id = Column(Integer, 
                         ForeignKey('course.course_id'), primary_key=True)
     week_no = Column(Integer, primary_key=True)
