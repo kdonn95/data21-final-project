@@ -7,7 +7,7 @@ class WeeklyPerformance(SqlAlchemyBase):
     __tablename__ = 'weekly_performance'
 
     candidate_id = Column(Integer,
-                        ForeignKey('candidate.candidate_id '), primary_key=True)
+                        ForeignKey('candidate.candidate_id'), primary_key=True)
     course_id = Column(Integer, 
                         ForeignKey('course.course_id'), primary_key=True)
     week_no = Column(Integer, primary_key=True)
