@@ -7,7 +7,5 @@ class Course(SqlAlchemyBase):
     __tablename__ = 'course'
 
     course_id = Column(Integer, primary_key=True)
-    trainer_id = Column(Integer, ForeignKey('trainer.trainer_id'))
+    course_type_id = Column(Integer, ForeignKey('course_type.course_type_id'))
     course_name = Column(String)
-    type = Column(String)
-

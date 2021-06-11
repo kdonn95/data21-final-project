@@ -4,14 +4,9 @@ from app.classes.db.__all_class_models import *
 
 
 class UpdateRow:
-    def __init__(self, database):
+    def __init__(self, engine):
         # Setting up connection to sql server.
-        server = 'localhost,1433'
-        user = 'SA'
-        password = 'Passw0rd2018'
-        driver = 'SQL+Server'
-
-        self.engine = sqlalchemy.create_engine(f"mssql+pyodbc://{user}:{password}@{server}/{database}?driver={driver}")
+        self.engine = engine
         factory = orm.sessionmaker(bind=self.engine)
         self.session = factory()
         self.session.expire_on_commit = False
