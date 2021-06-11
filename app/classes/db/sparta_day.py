@@ -1,10 +1,10 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date,ForeignKey
 from app.classes.db.modelbase import SqlAlchemyBase
 
 
 # creation of test table model
 class Test(SqlAlchemyBase):
-    __tablename__ = 'test'
+    __tablename__ = 'sparta_day'
 
     candidate_id = Column(Integer, 
                         ForeignKey('candidate.candidate_id'), primary_key=True)

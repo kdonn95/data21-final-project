@@ -1,2 +1,4 @@
-sqlalchemy
-pyodbc
+boto3~=1.17.46
+pandas~=1.2.4
+sqlalchemy~=1.4.15
+pyodbc~=4.0.30
