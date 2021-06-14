@@ -53,6 +53,3 @@ class JsonExtract:
         creates a dataframe per page"""
         for page in self.keylist:
             yield self.json_file_to_dataframe(page)
-
-je = JsonExtract([])
-print(tabulate(next(je.yield_pages())))

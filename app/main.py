@@ -1,6 +1,7 @@
 from app.classes.db.db_session import global_init
 from app.classes.get_config import GetConfig
 from app.classes.json_transform import JsonTransform
+from app.classes.json_extract import JsonExtract
 
 config = GetConfig()
 
@@ -11,14 +12,9 @@ conn_str = (
 
 engine = global_init(conn_str, config.database, "NORMAL")
 
+#////////// for testing json tyransforms:
+je = JsonExtract([])
+page1_df = next(je.yield_pages())
 jt = JsonTransform(engine)
-
-class JsonTransform:
-    def __init__(self, engine):
-        # Setting up connection to sql server.
-        self.engine = engine
-        # Connecting to the sql server.
-        connection = self.engine.connect()
-        #
-        self.je = JsonExtract([])
-
+from tabulate import tabulate
+print(tabulate(jt.transform_to_df(page1_df).columns))
