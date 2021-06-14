@@ -1,9 +1,19 @@
 from app.classes.text_file_pipeline import TextFilePipeline
-from app.main import engine
+from app.classes.db.db_session import global_init
+from app.classes.get_config import GetConfig
 import pandas as pd
 import pandas.api.types as ptypes
 from datetime import datetime
 
+config = GetConfig()
+
+conn_str = (
+            f'mssql+pyodbc://{config.user}:{config.password}' +
+            f'@{config.server}/master?driver={config.driver}'
+            )
+
+engine = global_init(conn_str, config.database, "INFO")
+con = engine.connect()
 pipeline = TextFilePipeline(engine)
 bucket_name = "data21-final-project"
 key = "Talent/Sparta Day 10 January 2019.txt"
@@ -39,6 +49,3 @@ def test_transform_string_to_int():
     #                     'presentation', 'presentation_max']
     # assert all(ptypes.is_integer_dtype(result[col]) for col in columns_to_check)
     assert isinstance(result.iloc[2]['presentation'], int)
-
-
-# def test_update_candidate_id():

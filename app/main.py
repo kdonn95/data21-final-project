@@ -8,4 +8,4 @@ conn_str = (
             f'@{config.server}/master?driver={config.driver}'
             )
 
-engine = global_init(conn_str, config.database)
+engine = global_init(conn_str, config.database, "NORMAL")

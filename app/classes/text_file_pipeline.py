@@ -34,7 +34,7 @@ class TextFilePipeline:
         # Get list of names of candidates entered in the candidate table.
         names_list = list(self.engine.execute("""
                                             SELECT candidate_name 
-                                            FROM candidate
+                                            FROM Data21Final.dbo.candidate
                                             """))
 
         # Check to see if candidate has an entry in the candidate table.
@@ -46,7 +46,7 @@ class TextFilePipeline:
             # an entry in that table will be created for them.
             if name not in names_list:
                 df = pd.DataFrame([name], columns=['candidate_name'])
-                df.to_sql('candidate', self.engine, 
+                df.to_sql('Data21Final.dbo.candidate', self.engine, 
                             if_exists='append', index=False)
 
             # Updating candidate's ID in the .
@@ -71,7 +71,7 @@ class TextFilePipeline:
         # Get list of candidate names and ids.
         id_name_list = list(self.engine.execute("""
                                                 SELECT candidate_id, 
-                                                candidate_name FROM candidate
+                                                candidate_name FROM Data21Final.dbo.candidate
                                                 """))
 
         # Finds the candidate id and returns it.

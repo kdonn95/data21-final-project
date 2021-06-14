@@ -102,7 +102,7 @@ engine.execute(f"""
                 """)
 
 # initialise database
-global_init(conn_str, config.database, 'NORMAL')
+global_init(conn_str, config.database, 'INFO')
 engine.execute(f'USE {config.database};')
 
 def test_candidate_columns():

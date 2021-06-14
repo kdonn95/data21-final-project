@@ -7,15 +7,15 @@ from app.classes.db.modelbase import SqlAlchemyBase
 __factory = None
 
 
-def global_init(db_str: str, db_name):
+def global_init(db_str: str, db_name, logging_type):
     """
     creates connection engine from the input database connection string
     and creates a new database if the db_name is not already in the server
     """
 
     # Creating the logger object to be used for logging.
-    # from app.classes.logger import Logger
-    # logger = Logger(logging_type)
+    from app.classes.logger import Logger
+    logger = Logger(logging_type)
 
     global __factory
 
