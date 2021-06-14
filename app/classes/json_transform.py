@@ -14,7 +14,6 @@ class JsonTransform:
         self.engine = engine
         # Connecting to the sql server.
         connection = self.engine.connect()
-        #
         self.je = JsonExtract([])
 
     def to_bool(self, field):
