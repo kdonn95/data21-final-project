@@ -73,8 +73,8 @@ Business30_20191230_df = academy_csv_df_dict['Business_30_2019-12-30']
 #print(list(Business30_20191230_df.columns))
 #print(type(Sept2019_Applicants_df['degree'][0]))
 
-for index, row in Sept2019_Applicants_df.iterrows():
-    print('test_city', row['city'], len(row.index), type(row.index.values))
+#for index, row in Sept2019_Applicants_df.iterrows():
+#    print('test_city', row['city'], len(row.index), type(row.index.values))
 # tested: DFs load nicely into SQL, ran a trial row for our big 'candidate' SQL table into local (Northwind) host
 #Sept2019_Applicants_df.to_sql('Cand_test', engine)
 """
