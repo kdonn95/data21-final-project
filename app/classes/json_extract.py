@@ -1,7 +1,7 @@
 import json
 import boto3
 import pandas as pd
-
+from tabulate import tabulate
 
 class JsonExtract:
     def __init__(self, used_keylist):
@@ -53,3 +53,6 @@ class JsonExtract:
         creates a dataframe per page"""
         for page in self.keylist:
             yield self.json_file_to_dataframe(page)
+
+je = JsonExtract([])
+print(tabulate(next(je.yield_pages())))
