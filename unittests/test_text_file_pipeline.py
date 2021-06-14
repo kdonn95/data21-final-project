@@ -13,7 +13,6 @@ conn_str = (
             )
 
 engine = global_init(conn_str, config.database, "INFO")
-con = engine.connect()
 pipeline = TextFilePipeline(engine)
 bucket_name = "data21-final-project"
 key = "Talent/Sparta Day 10 January 2019.txt"

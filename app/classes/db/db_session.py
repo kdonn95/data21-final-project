@@ -39,7 +39,9 @@ def global_init(db_str: str, db_name, logging_type):
                         """)
     
     # change connection to new database
-    engine.execute(f'USE {db_name}')
+    db_str = db_str.replace("master", db_name)
+    engine = sa.create_engine(db_str)
+    engine.connect()
 
     # binds engine to session, to make transactions to sql server
     __factory = orm.sessionmaker(bind=engine)

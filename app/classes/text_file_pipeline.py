@@ -10,7 +10,7 @@ class TextFilePipeline:
         self.engine = engine
 
         # Connecting to the sql server.
-        connection = self.engine.connect()
+        # connection = self.engine.connect()
 
         # Setting up connection to s3 resources from boto3.
         self.s3_resource = boto3.resource('s3')
