@@ -9,3 +9,4 @@ conn_str = (
             )
 
 engine = global_init(conn_str, config.database, "NORMAL")
+
