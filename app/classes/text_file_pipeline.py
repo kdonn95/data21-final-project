@@ -38,10 +38,10 @@ class TextFilePipeline(Logger):
     def update_candidate_id(self, data_frame):
         self.log_print("Starting process to change IDs.", "INFO")
         # Get list of names of candidates entered in the candidate table.
-        names_list = list(self.engine.execute("""
-                                            SELECT candidate_name 
-                                            FROM candidate
-                                            """))
+        names_list = [i[0] for i in list(self.engine.execute("""
+                                                            SELECT candidate_name 
+                                                            FROM candidate
+                                                            """))]
 
         # Check to see if candidate has an entry in the candidate table.
         for index in list(data_frame.index):
@@ -71,7 +71,7 @@ class TextFilePipeline(Logger):
         for index in list(data_frame.index):
             for column_name in columns_list:
                 data_frame.loc[index, column_name] = int(data_frame.loc[index, 
-                                                                column_name])
+                                                                column_name].replace('"', ''))
         return data_frame
 
     def __get_candidate_id(self, name: str):
@@ -85,10 +85,6 @@ class TextFilePipeline(Logger):
             if name == row[1]:
                 self.log_print(row[0], "DEBUG")
                 return row[0]
-
-    def load_data_into_sql(self, data_frame): # Needs updating.
-        # Loads dataframe into sql database.
-        data_frame.to_sql("test", self.engine, if_exists='append', index=False)
 
     def text_to_dataframe(self, bucket_name, key):
         # Getting the text file object from s3.
@@ -117,12 +113,20 @@ class TextFilePipeline(Logger):
         final_list = self.__inserting_loc_date(loc_date, separating_fields)
         self.log_pprint(final_list, "DEBUG")
 
+        # If the name had a hyphen in the middle of it, it is now joined back together.
+        for row_index in range(len(final_list)):
+            if len(final_list[row_index]) != 10:
+                self.log_print(final_list[row_index], "DEBUG")
+                final_list[row_index] = [final_list[row_index][0] + " - " + final_list[row_index][4]] + \
+                                        final_list[row_index][1:4] + \
+                                        final_list[row_index][5:]
+
         # Loading the data into a dataframe
         df = pd.DataFrame(final_list, columns=[
                                             'Name', 
                                             'candidate_id', 
                                             'date', 
-                                            'location', 
+                                            'location_id',
                                             'Psychometric',
                                             'psychometrics', 
                                             'psychometrics_max',
@@ -140,7 +144,7 @@ class TextFilePipeline(Logger):
     def __formatting(self, file_body):
         # Replacing specific symbols and replacing them 
         # to commas to separate fields.
-        dashseperation = [item.replace("-", ",") for item in file_body]
+        dashseperation = [item.replace("- ", ",") for item in file_body]
         slashseperation = [item.replace("/", ",") for item in dashseperation]
         colonseperation = [item.replace(":", ",") for item in slashseperation]
 
@@ -194,7 +198,10 @@ class TextFilePipeline(Logger):
         self.log_print("Starting to get location_id", "DEBUG")
 
         # Getting a list of all locations in the location table.
-        location_list = list(self.engine.execute("""SELECT location FROM location"""))
+        location_list = [i[0] for i in list(self.engine.execute("""
+                                            SELECT location
+                                            FROM location
+                                            """))]
         self.log_print(location_list, "DEBUG")
 
         # Creating the location information if not available  in the location table.
@@ -209,7 +216,7 @@ class TextFilePipeline(Logger):
         # Return the location id.
         location_id = list(self.engine.execute(f""" SELECT location_id 
                                                     FROM location 
-                                                    WHERE location = '{location}'"""))[0]
+                                                    WHERE location = '{location}'"""))[0][0]
         self.log_print(location_id, "DEBUG")
         return location_id
 
@@ -227,20 +234,76 @@ class TextFilePipeline(Logger):
         self.log_print(list_of_text_files, "DEBUG")
 
         # Gathering data, transforming and uploading in to sql database, one at a time.
-        for text_file in list_of_text_files[0:1]:  # NEEDS CHANGING
+        for text_file in list_of_text_files:  # NEEDS CHANGING
             self.log_print(str(text_file), "INFO")
 
             # Converting Text file in a data frame.
             data_frame = self.text_to_dataframe(bucket_name, text_file)
             self.log_pprint(data_frame, "DEBUG")
 
-            # # Transforming the dataframe by converting numbers to int, and adding the Candidate ID.
-            # data_frame = self.transform_string_to_int(data_frame, ['psychometrics', 'psychometrics_max',
-            #                                                                     'presentation', 'presentation_max'])
-            # self.log_pprint(data_frame, "DEBUG")
-            #
-            # data_frame = self.update_candidate_id(data_frame)
-            # self.log_pprint(data_frame[['date', 'location']], "DEBUG")
+            # Transforming the dataframe by converting numbers to int, and adding the Candidate ID.
+            data_frame = self.transform_string_to_int(data_frame, ['psychometrics', 'psychometrics_max',
+                                                                                'presentation', 'presentation_max'])
+            self.log_pprint(data_frame, "DEBUG")
+
+            data_frame = self.update_candidate_id(data_frame)
+            self.log_pprint(data_frame, "DEBUG")
+
+            data_frame = self.update_data_in_database(data_frame)
+            self.log_print("Finished updating rows into sql database.", "INFO")
+
+            self.load_data_into_sql(data_frame)
+            self.log_print("Finished uploading rows into sql database.", "INFO")
+
+    def update_data_in_database(self, data_frame):
+        # Extracting dates from the sql database from sparta day table.
+        sql_dates = [i[0] for i in list(self.engine.execute("""
+                                                            SELECT DISTINCT date
+                                                            FROM sparta_day
+                                                            """))]
+        # Extracting date from data_frame:
+        df_date = data_frame['date'].head(1)[0]
+
+        # Checking to see if any entries for the current date is in the database.
+        if df_date in sql_dates:
+            # Getting a list of candidate ids who already have an entry for this date.
+            sql_ids = [i[0] for i in list(self.engine.execute(f"""
+                                                             SELECT candidate_id
+                                                             FROM sparta_day
+                                                             WHERE date = '{df_date}'
+                                                             """))]
+
+            # Creating a list to keep track of which rows to delete.
+            index_to_drop = []
+
+            for index in list(data_frame.index):
+                if data_frame.loc[index, "candidate_id"] in sql_ids:
+                    index_to_drop.append(index)
+
+                    # Updating candidate details in sparta day table.
+                    self.engine.execute(f"""
+                        UPDATE sparta_day
+                        SET
+                            location_id = {data_frame.loc[index, "location_id"]},
+                            psychometrics = {data_frame.loc[index, "psychometrics"]},
+                            psychometrics_max = {data_frame.loc[index, "psychometrics_max"]},
+                            presentation = {data_frame.loc[index, "presentation"]},
+                            presentation_max = {data_frame.loc[index, "presentation_max"]}
+                        WHERE candidate_id = '{data_frame.loc[index, "candidate_id"]}' 
+                        AND date = '{data_frame.loc[index, "date"]}'
+                        """)
+
+            # Removing the rows which which had have been entered into the database.
+            df = data_frame.drop(index_to_drop)
+        else:
+            df = data_frame
+
+        return df
+
+    def load_data_into_sql(self, data_frame):
+        # Loads dataframe into sql database.
+        if len(data_frame) > 0:
+            data_frame.to_sql("sparta_day", self.engine, if_exists='append', index=False)
 
 
 
