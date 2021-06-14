@@ -131,3 +131,8 @@ dmypy.json
 # IDE Settings
 .idea
 .vscode
+
+#transform test file
+# transform_applicants_csv.py
+*Pipfile
+*.lock
