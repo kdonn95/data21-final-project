@@ -9,8 +9,14 @@ page1_df = next(je.yield_pages())
 print(page1_df.columns)
 print(tabulate(page1_df))
 
+
 class JsonTransform:
-    def __init__(self):
+    def __init__(self, engine):
+        # Setting up connection to sql server.
+        self.engine = engine
+        # Connecting to the sql server.
+        connection = self.engine.connect()
+        #
         self.je = JsonExtract([])
 
     def to_bool(self, field):
