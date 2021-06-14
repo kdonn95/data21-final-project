@@ -21,7 +21,7 @@ def test_db_creation():
                     """)
 
     # initialise database
-    global_init(conn_str, config.database)
+    global_init(conn_str, config.database, "DEBUG")
 
     # get list of databases
     dbs = engine.execute(f"SELECT name FROM sys.databases")
