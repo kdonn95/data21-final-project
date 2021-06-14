@@ -1,11 +1,14 @@
 import boto3
 import pandas as pd
-import sqlalchemy
 from datetime import datetime
+from app.classes.logger import Logger
 
 
-class TextFilePipeline:
-    def __init__(self, engine):
+class TextFilePipeline(Logger):
+    def __init__(self, engine, logging_level):
+        # Initializing Logger.
+        Logger.__init__(self, logging_level)
+
         # Setting up connection to sql server.
         self.engine = engine
 
@@ -17,6 +20,8 @@ class TextFilePipeline:
         self.s3_client = boto3.client('s3')
 
     def get_txt_file_key_list(self, bucket_name):
+        self.log_print("Connecting to bucket to get keys.", "INFO")
+
         # Extract all objects in the bucket specified by the user.
         files = self.s3_resource.Bucket(bucket_name).objects.all()
 
@@ -31,6 +36,7 @@ class TextFilePipeline:
         return txt_files
 
     def update_candidate_id(self, data_frame):
+        self.log_print("Starting process to change IDs.", "INFO")
         # Get list of names of candidates entered in the candidate table.
         names_list = list(self.engine.execute("""
                                             SELECT candidate_name 
@@ -38,9 +44,9 @@ class TextFilePipeline:
                                             """))
 
         # Check to see if candidate has an entry in the candidate table.
-
         for index in list(data_frame.index):
             name = data_frame.loc[index, "Name"].title()
+            self.log_print(name, "DEBUG")
 
             # If the name isn't in the candidate table, 
             # an entry in that table will be created for them.
@@ -56,6 +62,7 @@ class TextFilePipeline:
         # Removes the Name column from the data frame 
         # as it is no longer needed.
         data_frame = data_frame.drop(columns="Name")
+        self.log_pprint(data_frame, "DEBUG")
         return data_frame
 
     def transform_string_to_int(self, data_frame, columns_list):
@@ -70,16 +77,16 @@ class TextFilePipeline:
     def __get_candidate_id(self, name: str):
         # Get list of candidate names and ids.
         id_name_list = list(self.engine.execute("""
-                                                SELECT candidate_id, 
-                                                candidate_name FROM Data21Final.dbo.candidate
+                                                SELECT candidate_id, candidate_name FROM candidate
                                                 """))
 
         # Finds the candidate id and returns it.
         for row in id_name_list:
             if name == row[1]:
+                self.log_print(row[0], "DEBUG")
                 return row[0]
 
-    def load_data_into_sql(self, data_frame):
+    def load_data_into_sql(self, data_frame): # Needs updating.
         # Loads dataframe into sql database.
         data_frame.to_sql("test", self.engine, if_exists='append', index=False)
 
@@ -99,9 +106,16 @@ class TextFilePipeline:
 
         # Reformatting into strings into different fields
         extraction_to_list = self.__formatting(text_lines_list)
+        self.log_pprint(extraction_to_list, "DEBUG")
+
         list_lists = self.__list_of_lists(extraction_to_list)
+        self.log_pprint(list_lists, "DEBUG")
+
         separating_fields = self.__separating_by_comma(list_lists)
+        self.log_pprint(separating_fields, "DEBUG")
+
         final_list = self.__inserting_loc_date(loc_date, separating_fields)
+        self.log_pprint(final_list, "DEBUG")
 
         # Loading the data into a dataframe
         df = pd.DataFrame(final_list, columns=[
@@ -116,9 +130,11 @@ class TextFilePipeline:
                                             'presentation', 
                                             'presentation_max'
                                             ])
+        self.log_pprint(df, "DEBUG")
+
         # Dropping columns which aren't needed.
         df.drop(df.columns[[4, 7]], axis=1, inplace=True)
-
+        self.log_pprint(df, "DEBUG")
         return df
 
     def __formatting(self, file_body):
@@ -171,8 +187,31 @@ class TextFilePipeline:
 
         # Inserting date and location back into a list
         new_list.append(date)
-        new_list.append(location)
+        new_list.append(self.__get_location_id(location))
         return new_list
+
+    def __get_location_id(self, location):
+        self.log_print("Starting to get location_id", "DEBUG")
+
+        # Getting a list of all locations in the location table.
+        location_list = list(self.engine.execute("""SELECT location FROM location"""))
+        self.log_print(location_list, "DEBUG")
+
+        # Creating the location information if not available  in the location table.
+        if location not in location_list:
+            self.log_print("Starting to insert a new location in the location table.", "DEBUG")
+            self.engine.execute(f"""
+            INSERT INTO location (location)
+            VALUES ('{location}')""")
+
+        self.log_print("Finished inserting a new location in the location table.", "DEBUG")
+
+        # Return the location id.
+        location_id = list(self.engine.execute(f""" SELECT location_id 
+                                                    FROM location 
+                                                    WHERE location = '{location}'"""))[0]
+        self.log_print(location_id, "DEBUG")
+        return location_id
 
     def __inserting_loc_date(self, date_loc, other_fields):
         for line in other_fields:
@@ -180,3 +219,28 @@ class TextFilePipeline:
             line.insert(2, date_loc[1])
             line.insert(1, 0)
         return other_fields
+
+    def upload_all_txt_files(self, bucket_name):
+
+        # Getting a list of keys with all text files in the s3 bucket.
+        list_of_text_files = self.get_txt_file_key_list(bucket_name)
+        self.log_print(list_of_text_files, "DEBUG")
+
+        # Gathering data, transforming and uploading in to sql database, one at a time.
+        for text_file in list_of_text_files[0:1]:  # NEEDS CHANGING
+            self.log_print(str(text_file), "INFO")
+
+            # Converting Text file in a data frame.
+            data_frame = self.text_to_dataframe(bucket_name, text_file)
+            self.log_pprint(data_frame, "DEBUG")
+
+            # # Transforming the dataframe by converting numbers to int, and adding the Candidate ID.
+            # data_frame = self.transform_string_to_int(data_frame, ['psychometrics', 'psychometrics_max',
+            #                                                                     'presentation', 'presentation_max'])
+            # self.log_pprint(data_frame, "DEBUG")
+            #
+            # data_frame = self.update_candidate_id(data_frame)
+            # self.log_pprint(data_frame[['date', 'location']], "DEBUG")
+
+
+
