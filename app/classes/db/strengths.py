@@ -8,4 +8,3 @@ class Strengths(SqlAlchemyBase):
 
     strength_id = Column(Integer, primary_key=True)
     strength = Column(String)
-
