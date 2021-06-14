@@ -108,11 +108,7 @@ engine.execute(f"""
                 """)
 
 # initialise database
-<<<<<<< HEAD
-global_init(conn_str, config.database, 'INFO')
-=======
 global_init(conn_str, config.database, "DEBUG")
->>>>>>> DEV
 engine.execute(f'USE {config.database};')
 
 
