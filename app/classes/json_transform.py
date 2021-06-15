@@ -1,6 +1,4 @@
-import json
 from app.classes.json_extract import JsonExtract
-from tabulate import tabulate
 import datetime
 import pandas as pd
 
