@@ -32,6 +32,6 @@ class Logger:
         if level == "INFO":
             return 20
         elif level == "DEBUG":
-            return 10
+            return 15
         elif level == "Normal":
             return 30

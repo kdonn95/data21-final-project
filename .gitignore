@@ -137,6 +137,5 @@ dmypy.json
 # My folder for working:
 work/
 
-# password file
+#password file
 password.ini
-

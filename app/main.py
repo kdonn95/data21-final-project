@@ -1,27 +1,19 @@
 from app.classes.db.db_session import global_init
 from app.classes.get_config import GetConfig
-from app.classes.json_transform import JsonTransform
-from app.classes.json_extract import JsonExtract
+from app.classes.text_file_pipeline import TextFilePipeline
 
+logging_level = "DEBUG"
 config = GetConfig()
 
 conn_str = (
-            f'mssql+pyodbc://{config.user}:{config.password}' +
-            f'@{config.server}/master?driver={config.driver}'
-            )
+        f'mssql+pyodbc://{config.user}:{config.password}' +
+        f'@{config.server}/master?driver={config.driver}'
+)
 
-engine = global_init(conn_str, config.database, "NORMAL")
+engine = global_init(conn_str, config.database, logging_level)
 
-#////////// for testing json tyransforms:
-# je = JsonExtract([])
-# page1_df = next(je.yield_pages())
-# jt = JsonTransform(engine)
-# from tabulate import tabulate
-# print(tabulate(jt.transform_to_df(page1_df)))
+# Adding txt file data into sql database.
+txt_pipeline = TextFilePipeline(engine, logging_level)
+txt_pipeline.upload_all_txt_files("data21-final-project")
 
-
-connection = engine.connect()
-product_query = 'SELECT name FROM sys.tables;'
-
-result = engine.execute(product_query)
-print(product_query)
+# print(list(engine.execute("""SELECT location_name FROM location""")))
