@@ -18,3 +18,10 @@ engine = global_init(conn_str, config.database, "NORMAL")
 # jt = JsonTransform(engine)
 # from tabulate import tabulate
 # print(tabulate(jt.transform_to_df(page1_df)))
+
+
+connection = engine.connect()
+product_query = 'SELECT name FROM sys.tables;'
+
+result = engine.execute(product_query)
+print(product_query)
