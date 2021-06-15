@@ -1,5 +1,6 @@
 import pandas as pd
 from boto3_csv_load_pd import academy_csv_info_getter, talent_csv_info_getter
+from transform_applicants_csv import candidate_df
 from tabulate import tabulate
 
 
@@ -73,29 +74,10 @@ class transformCSVdataFrames:
         return all_courses_score_values_df, course_table_df
 
     def talent_csv_new_df_setup(self):
-        all_talent_new_df_is_empty = True
-        final_big_candidate_df = pd.DataFrame()
-        for df_key in self.talent_csv_dfs_dict:
-            df_to_transform = self.talent_csv_dfs_dict[df_key]
-            # format: 'id', 'name', 'gender', 'dob', 'email', 'city', 'address', 'postcode', 'phone_number', 'uni',
-            # 'degree','invited_date','month','invited_by'
-            one_key_output_df = df_to_transform.copy()
-            one_key_output_df['sparta_day_date'] = one_key_output_df['invited_date'].astype('Int64').apply(str) + ' '\
-                                                   + one_key_output_df['month']
-            one_key_output_df.drop(columns=['id', 'invited_date', 'month'], inplace=True)
-            one_key_output_df.rename(columns={'invited_by': 'staff_inviter'}, inplace=True)
-            # new format: 'name', 'gender', 'dob', 'email', 'city', 'address', 'postcode', 'phone_number', 'uni',
-            # 'degree','sparta_day_date','staff_inviter'
-            if all_talent_new_df_is_empty:  # initialise output DF only in first instance
-                final_big_candidate_df = one_key_output_df
-                all_talent_new_df_is_empty = False
-            else:  # otherwise, simply concat the current DF to to output DF
-                final_big_candidate_df = pd.concat([final_big_candidate_df, one_key_output_df], ignore_index=True)
-        final_big_candidate_df['sparta_day_date'] = pd.to_datetime(final_big_candidate_df['sparta_day_date']).dt.date
-        final_big_candidate_df['dob'] = pd.to_datetime(final_big_candidate_df['dob']).dt.date
-        final_big_candidate_df['phone_number'] = final_big_candidate_df['phone_number'].str.replace(r'[^+\w]', '',
-                                                                                                    regex=True)
+        
+        final_big_candidate_df = candidate_df
         return final_big_candidate_df
+      
 
     def identify_academy_dropout_rows(self, nice_format_df):
         for index, row_data in nice_format_df.iterrows():
