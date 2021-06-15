@@ -16,12 +16,6 @@ tables_columns = {
                 'candidate': [
                             'candidate_id',
                             'candidate_name',
-                            'date',
-                            'self_development',
-                            'geo_flex',
-                            'financial_support',
-                            'result',
-                            'course_interest',
                             'gender',
                             'dob',
                             'email',
@@ -29,48 +23,56 @@ tables_columns = {
                             'address',
                             'postcode',
                             'phone_number',
-                            'uni_degree',
-                            'invited_date',
-                            'invited_by'
+                            'uni_name',
+                            'degree_result',
+                            'staff_id'
                             ],
-                'weaknesses_junc': [
-                                'weakness_id', 
-                                'candidate_id'
+                'course_staff_junc': [
+                                    'course_id',
+                                    'staff_id',
+                                    ],
+                'course_type': [
+                                'course_type_id',
+                                'type'
                                 ],
-                'weaknesses': [
-                                'weakness_id', 
-                                'weakness'
-                                ],    
-                'trainer': [
-                            'trainer_id', 
-                            'trainer_name'
-                            ],
                 'course': [
                             'course_id',
-                            'trainer_id',
+                            'course_type_id',
                             'course_name',
-                            'type'
+                            'start_date',
+                            'duration'
                             ],
-                'test': [
-                        'candidate_id', 
-                        'date', 
-                        'location', 
-                        'presentation', 
-                        'presentation_max', 
-                        'psychometrics', 
-                        'psychometrics_max'
-                        ],
-                'scores': [
-                            'spartan_id',
-                            'course_id',
-                            'week_no',
-                            'analytic',
-                            'independent',
-                            'determined',
-                            'professional',
-                            'studious',
-                            'imaginative'
-                        ],
+                'location': [
+                            'location_id',
+                            'location'
+                            ],
+                'sparta_day': [
+                            'candidate_id',
+                            'location_id', 
+                            'date', 
+                            'result',
+                            'self_development',
+                            'financial_support',
+                            'geo_flex',
+                            'course_interest', 
+                            'presentation', 
+                            'presentation_max', 
+                            'psychometrics', 
+                            'psychometrics_max'
+                            ],
+                'staff': [
+                            'staff_id', 
+                            'staff_name',
+                            'department'
+                            ],
+                'strength_junc': [
+                                'strength_id', 
+                                'candidate_id'
+                                ],
+                'strengths': [
+                            'strength_id', 
+                            'strength'
+                            ],
                 'tech_junc': [
                             'tech_id', 
                             'candidate_id',
@@ -80,19 +82,25 @@ tables_columns = {
                         'tech_id', 
                         'tech'
                         ],
-                'strengths': [
-                            'strength_id', 
-                            'strength'
-                            ],
-                'strength_junc': [
-                                'strength_id', 
+                'weaknesses_junc': [
+                                'weakness_id', 
                                 'candidate_id'
                                 ],
-                'spartan': [
-                            'spartan_id', 
-                            'candidate_id', 
-                            'spartan_name'
-                            ]
+                'weaknesses': [
+                                'weakness_id', 
+                                'weakness'
+                                ],    
+                'weekly_performance': [
+                                        'candidate_id',
+                                        'course_id',
+                                        'week_no',
+                                        'analytic',
+                                        'independent',
+                                        'determined',
+                                        'professional',
+                                        'studious',
+                                        'imaginative'
+                                        ]
                 }
 
 # drop database
@@ -102,8 +110,9 @@ engine.execute(f"""
                 """)
 
 # initialise database
-global_init(conn_str, config.database)
+global_init(conn_str, config.database, "DEBUG")
 engine.execute(f'USE {config.database};')
+
 
 def test_candidate_columns():
     cols = engine.execute("""
@@ -117,6 +126,46 @@ def test_candidate_columns():
 
     for col in cols:
         if col in tables_columns['candidate']:
+            result.append(True)
+        
+        else:
+            result.append(False)
+    
+    assert all(result)
+
+
+def test_course_staff_junc_columns():
+    cols = engine.execute("""
+                        SELECT name
+                        FROM sys.columns
+                        WHERE object_id = OBJECT_ID('course_staff_junc')
+                        """)
+    cols = [c[0] for c in cols]
+
+    result = []
+
+    for col in cols:
+        if col in tables_columns['course_staff_junc']:
+            result.append(True)
+        
+        else:
+            result.append(False)
+    
+    assert all(result)
+
+
+def test_course_type_columns():
+    cols = engine.execute("""
+                        SELECT name
+                        FROM sys.columns
+                        WHERE object_id = OBJECT_ID('course_type')
+                        """)
+    cols = [c[0] for c in cols]
+
+    result = []
+
+    for col in cols:
+        if col in tables_columns['course_type']:
             result.append(True)
         
         else:
@@ -145,18 +194,18 @@ def test_course_columns():
     assert all(result)
 
 
-def test_scores_columns():
+def test_location_columns():
     cols = engine.execute("""
                         SELECT name
                         FROM sys.columns
-                        WHERE object_id = OBJECT_ID('scores')
+                        WHERE object_id = OBJECT_ID('location')
                         """)
     cols = [c[0] for c in cols]
 
     result = []
 
     for col in cols:
-        if col in tables_columns['scores']:
+        if col in tables_columns['location']:
             result.append(True)
         
         else:
@@ -165,18 +214,38 @@ def test_scores_columns():
     assert all(result)
 
 
-def test_spartan_columns():
+def test_sparta_day_columns():
     cols = engine.execute("""
                         SELECT name
                         FROM sys.columns
-                        WHERE object_id = OBJECT_ID('spartan')
+                        WHERE object_id = OBJECT_ID('sparta_day')
                         """)
     cols = [c[0] for c in cols]
 
     result = []
 
     for col in cols:
-        if col in tables_columns['spartan']:
+        if col in tables_columns['sparta_day']:
+            result.append(True)
+        
+        else:
+            result.append(False)
+    
+    assert all(result)
+
+
+def test_staff_columns():
+    cols = engine.execute("""
+                        SELECT name
+                        FROM sys.columns
+                        WHERE object_id = OBJECT_ID('staff')
+                        """)
+    cols = [c[0] for c in cols]
+
+    result = []
+
+    for col in cols:
+        if col in tables_columns['staff']:
             result.append(True)
         
         else:
@@ -225,26 +294,6 @@ def test_strengths_columns():
     assert all(result)
 
 
-def test_tech_columns():
-    cols = engine.execute("""
-                        SELECT name
-                        FROM sys.columns
-                        WHERE object_id = OBJECT_ID('tech')
-                        """)
-    cols = [c[0] for c in cols]
-
-    result = []
-
-    for col in cols:
-        if col in tables_columns['tech']:
-            result.append(True)
-        
-        else:
-            result.append(False)
-    
-    assert all(result)
-
-
 def test_tech_junc_columns():
     cols = engine.execute("""
                         SELECT name
@@ -265,18 +314,18 @@ def test_tech_junc_columns():
     assert all(result)
 
 
-def test_test_columns():
+def test_tech_columns():
     cols = engine.execute("""
                         SELECT name
                         FROM sys.columns
-                        WHERE object_id = OBJECT_ID('test')
+                        WHERE object_id = OBJECT_ID('tech')
                         """)
     cols = [c[0] for c in cols]
 
     result = []
 
     for col in cols:
-        if col in tables_columns['test']:
+        if col in tables_columns['tech']:
             result.append(True)
         
         else:
@@ -285,18 +334,18 @@ def test_test_columns():
     assert all(result)
 
 
-def test_trainer_columns():
+def test_weaknesses_junc_columns():
     cols = engine.execute("""
                         SELECT name
                         FROM sys.columns
-                        WHERE object_id = OBJECT_ID('trainer')
+                        WHERE object_id = OBJECT_ID('weaknesses_junc')
                         """)
     cols = [c[0] for c in cols]
 
     result = []
 
     for col in cols:
-        if col in tables_columns['trainer']:
+        if col in tables_columns['weaknesses_junc']:
             result.append(True)
         
         else:
@@ -325,18 +374,18 @@ def test_weaknesses_columns():
     assert all(result)
 
 
-def test_weaknesses_junc_columns():
+def test_weekly_performance_columns():
     cols = engine.execute("""
                         SELECT name
                         FROM sys.columns
-                        WHERE object_id = OBJECT_ID('weaknesses_junc')
+                        WHERE object_id = OBJECT_ID('weekly_performance')
                         """)
     cols = [c[0] for c in cols]
 
     result = []
 
     for col in cols:
-        if col in tables_columns['weaknesses_junc']:
+        if col in tables_columns['weekly_performance']:
             result.append(True)
         
         else:

@@ -14,7 +14,7 @@ class TextFilePipeline(Logger):
         self.engine = engine
 
         # Connecting to the sql server.
-        connection = self.engine.connect()
+        # connection = self.engine.connect()
 
         # Setting up connection to s3 resources from boto3.
         self.s3_resource = boto3.resource('s3')
@@ -53,8 +53,8 @@ class TextFilePipeline(Logger):
             # an entry in that table will be created for them.
             if name not in names_list:
                 df = pd.DataFrame([name], columns=['candidate_name'])
-                df.to_sql('candidate', self.engine, 
-                            if_exists='append', index=False)
+                df.to_sql('Data21Final.dbo.candidate', self.engine,
+                          if_exists='append', index=False)
 
             # Updating candidate's ID in the .
             candidate_id = self.__get_candidate_id(name)
@@ -71,8 +71,7 @@ class TextFilePipeline(Logger):
         # and converts them to an int type.
         for index in list(data_frame.index):
             for column_name in columns_list:
-                data_frame.loc[index, column_name] = int(data_frame.loc[index, 
-                                                                column_name].replace('"', ''))
+                data_frame.loc[index, column_name] = int(data_frame.loc[index, column_name].replace('"', ''))
         return data_frame
 
     def __get_candidate_id(self, name: str):
@@ -246,7 +245,7 @@ class TextFilePipeline(Logger):
 
             # Transforming the dataframe by converting numbers to int, and adding the Candidate ID.
             data_frame = self.transform_string_to_int(data_frame, ['psychometrics', 'psychometrics_max',
-                                                                                'presentation', 'presentation_max'])
+                                                                   'presentation', 'presentation_max'])
             self.log_pprint(data_frame, "DEBUG")
 
             data_frame = self.update_candidate_id(data_frame)
@@ -307,7 +306,3 @@ class TextFilePipeline(Logger):
         # Loads dataframe into sql database.
         if len(data_frame) > 0:
             data_frame.to_sql("sparta_day", self.engine, if_exists='append', index=False)
-
-
-testing = TextFilePipeline(enginge, "INFO")
-zjzdlk
