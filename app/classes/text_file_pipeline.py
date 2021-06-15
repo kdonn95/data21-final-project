@@ -309,4 +309,5 @@ class TextFilePipeline(Logger):
             data_frame.to_sql("sparta_day", self.engine, if_exists='append', index=False)
 
 
-
+testing = TextFilePipeline(enginge, "INFO")
+zjzdlk

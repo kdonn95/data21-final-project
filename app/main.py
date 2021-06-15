@@ -13,7 +13,7 @@ conn_str = (
 
 engine = global_init(conn_str, config.database, logging_level)
 
+
 # Adding txt file data into sql database.
 txt_pipeline = TextFilePipeline(engine, logging_level)
 txt_pipeline.upload_all_txt_files("data21-final-project")
-#txt_pipeline.text_to_dataframe("data21-final-project", "Talent/Sparta Day 10 April 2019.txt")
