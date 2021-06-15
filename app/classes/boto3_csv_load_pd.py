@@ -12,6 +12,7 @@ engine = sqlalchemy.create_engine(f"mssql+pyodbc://{user}:{password}@{server}/{d
 connection = engine.connect()
 """
 
+
 class GetS3CSVinfo:
     # user manually sets S3 bucket name, sub-directory within that bucket
     def __init__(self, bucket_name, s3_sub_dir):

@@ -1,3 +1,8 @@
+import pandas as pd
+d = {'col1': [1, 2], 'col2': [3, 4]}
+x = pd.DataFrame(data=d)
+print(type(x) == pd.DataFrame)
+
 """
 def academy_course_table_newdf_setup(self, dict_of_dfs_to_transform):
         for df_key in dict_of_dfs_to_transform:
