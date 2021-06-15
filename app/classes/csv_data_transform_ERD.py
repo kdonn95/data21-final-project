@@ -1,9 +1,9 @@
 import pandas as pd
-from boto3_csv_load_pd import academy_csv_info_getter, talent_csv_info_getter
+from app.classes.boto3_csv_load_pd import academy_csv_info_getter, talent_csv_info_getter
 from tabulate import tabulate
 
 
-class transformCSVdataFrames:
+class TransformCSVdataFrames:
     # transform csv dataframes to be like SQL target schema
     def __init__(self, academy_csv_dfs_dict, talent_csv_dfs_dict):
         # 'resource','client' APIs are built into Boto3
@@ -49,7 +49,7 @@ class transformCSVdataFrames:
                         max_week_num = week_num
             # fields for new df contained in df_key
             ac_fields = df_key.split('_')
-            course_table_row = [ac_fields[0], ac_fields[1], ac_fields[-1], max_week_num]
+            course_table_row = [ac_fields[0], ac_fields[0] + ' ' + ac_fields[1], ac_fields[-1], max_week_num]
             course_row_series = pd.Series(course_table_row, index=course_table_df.columns)
             # dataframe to return: adding new row per df in dictionary with course info
             course_table_df = course_table_df.append(course_row_series, ignore_index=True)
@@ -106,14 +106,16 @@ class transformCSVdataFrames:
                     check_nulls += 1
 
             if check_nulls == len(score_column_values):
+                # delete rows where all scores are null
                 nice_format_df.drop(index, inplace=True)
+        # reset the indices - don't care about their values
         nice_format_df.reset_index(drop=True, inplace=True)
 
 
 academy_raw_csv_df_dict = academy_csv_info_getter.create_dict_of_csv_pd_dataframes()
 talent_raw_csv_df_dict = talent_csv_info_getter.create_dict_of_csv_pd_dataframes()
 
-x = transformCSVdataFrames(academy_raw_csv_df_dict, talent_raw_csv_df_dict)
+x = TransformCSVdataFrames(academy_raw_csv_df_dict, talent_raw_csv_df_dict)
 scores_table, courses_table = x.academy_csv_scores_and_course_dfs_setup()
 x.identify_academy_dropout_rows(scores_table)
 candidates_table = x.talent_csv_new_df_setup()
@@ -121,7 +123,8 @@ print(tabulate(courses_table.head()))
 print(tabulate(candidates_table.head()))
 print(scores_table.columns)
 print(tabulate(scores_table.head(20)))
-print(pd.to_datetime(candidates_table['sparta_day_date']))
+#y = candidates_table.at[0, 'sparta_day_date']
+#print(y, type(y))
 
 # spartan_table_df_cols = ['spartan_name']
 # trainer_table_df_cols = ['trainer_name']

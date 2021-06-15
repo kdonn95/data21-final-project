@@ -1,5 +1,6 @@
 import pytest
 from app import *
+import pandas as pd
 
 def test_return_df():
     for value in academy_csv_data_dict.values():
