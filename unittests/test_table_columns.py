@@ -29,16 +29,18 @@ tables_columns = {
                             ],
                 'course_staff_junc': [
                                     'course_id',
-                                    'staff_id'
+                                    'staff_id',
                                     ],
                 'course_type': [
                                 'course_type_id',
-                                'type'
+                                'type',
+                                'duration'
                                 ],
                 'course': [
                             'course_id',
                             'course_type_id',
                             'course_name',
+                            'start_date'
                             ],
                 'location': [
                             'location_id',

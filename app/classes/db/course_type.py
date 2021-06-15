@@ -8,3 +8,4 @@ class CourseType(SqlAlchemyBase):
 
     course_type_id = Column(Integer, primary_key=True)
     type = Column(String)
+    duration = Column(Integer)
