@@ -74,10 +74,9 @@ class TransformCSVdataFrames:
         return all_courses_score_values_df, course_table_df
 
     def talent_csv_new_df_setup(self):
-        
+        # note to self: 'candidate_df' is imported
         final_big_candidate_df = candidate_df
         return final_big_candidate_df
-      
 
     def identify_academy_dropout_rows(self, nice_format_df):
         for index, row_data in nice_format_df.iterrows():
@@ -106,8 +105,8 @@ print(candidates_table.columns)
 print(tabulate(candidates_table.head()))
 print(scores_table.columns)
 print(tabulate(scores_table.head(20)))
-#y = candidates_table.at[0, 'sparta_day_date']
-#print(y, type(y))
+# y = candidates_table.at[0, 'sparta_day_date']
+# print(y, type(y))
 
 # spartan_table_df_cols = ['spartan_name']
 # trainer_table_df_cols = ['trainer_name']
