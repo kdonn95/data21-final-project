@@ -9,14 +9,9 @@ class Logger:
         # Initializing the logging level according to the user input.
         level = self.__logging_level_number(logging_level)
 
-        if logging_level == "DEBUG":
-            logging.basicConfig(format=f'{logging_level}: %(asctime)s: %(message)s \n',
-                                datefmt='%m/%d/%Y %I:%M:%S %p',
-                                level=level)
-        else:
-            logging.basicConfig(format=f'{logging_level}: %(asctime)s: %(message)s\n',
-                                datefmt='%m/%d/%Y %I:%M:%S %p',
-                                level=level)
+        logging.basicConfig(format=f'{logging_level}: %(asctime)s: %(message)s \n',
+                            datefmt='%m/%d/%Y %I:%M:%S %p',
+                            level=level)
 
     def log_print(self, message, level_name):
         # Sets up a message that you want to display to the logging level that is chosen by the user.
