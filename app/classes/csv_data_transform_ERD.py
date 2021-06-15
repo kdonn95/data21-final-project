@@ -14,7 +14,7 @@ class TransformCSVdataFrames:
         # scores SQL table data retrieval - more difficult
         # scores_table_df_cols = ['Analytic', 'Independent', 'Determined', 'Professional', 'Studious', 'Imaginative']
         # scores_table_df = pd.DataFrame(columns=['spartan_name', 'trainer_name', 'week_number'] + scores_table_df_cols)
-        course_table_df_cols = ['course_type', 'course_num', 'course_start_date', 'course_duration_weeks']
+        course_table_df_cols = ['course_type', 'course_name', 'course_start_date', 'duration_weeks']
         course_table_df = pd.DataFrame(columns=course_table_df_cols)
         all_courses_new_df_is_empty = True
         all_courses_score_values_df = pd.DataFrame()
@@ -120,6 +120,7 @@ scores_table, courses_table = x.academy_csv_scores_and_course_dfs_setup()
 x.identify_academy_dropout_rows(scores_table)
 candidates_table = x.talent_csv_new_df_setup()
 print(tabulate(courses_table.head()))
+print(candidates_table.columns)
 print(tabulate(candidates_table.head()))
 print(scores_table.columns)
 print(tabulate(scores_table.head(20)))
