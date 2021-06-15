@@ -2,6 +2,7 @@ import boto3
 import pandas as pd
 from datetime import datetime
 from app.classes.logger import Logger
+import re
 
 
 class TextFilePipeline(Logger):
@@ -117,7 +118,7 @@ class TextFilePipeline(Logger):
         for row_index in range(len(final_list)):
             if len(final_list[row_index]) != 10:
                 self.log_print(final_list[row_index], "DEBUG")
-                final_list[row_index] = [final_list[row_index][0] + " - " + final_list[row_index][4]] + \
+                final_list[row_index] = [final_list[row_index][0] + "-" + final_list[row_index][4]] + \
                                         final_list[row_index][1:4] + \
                                         final_list[row_index][5:]
 
@@ -169,11 +170,13 @@ class TextFilePipeline(Logger):
         comma_sep = []
         for index in list_of_str_lists:
             index = str(index)
+            index = index[2:-2]
             index = index.split(',')
             index = [item.strip() for item in index]
-            index = [item.replace("'", "") for item in index]
-            index = [item.replace("[", "") for item in index]
-            index = [item.replace("]", "") for item in index]
+            index = [re.sub("['`´‘’]", "'", item) for item in index]
+            index = [item.replace("' ", "'") for item in index]
+            index = [item.replace(" '", "'") for item in index]
+            index = [item.replace("' ", "'") for item in index]
             comma_sep.append(index)
         return comma_sep
 
