@@ -53,7 +53,7 @@ class TextFilePipeline(Logger):
             # an entry in that table will be created for them.
             if name not in names_list:
                 df = pd.DataFrame([name], columns=['candidate_name'])
-                df.to_sql('Data21Final.dbo.candidate', self.engine,
+                df.to_sql('candidate', self.engine,
                           if_exists='append', index=False)
 
             # Updating candidate's ID in the .
