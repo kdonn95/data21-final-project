@@ -1,10 +1,6 @@
 import pandas as pd
-<<<<<<< HEAD:app/classes/csv_data_transform_to_ERD.py
-from app.classes.boto3_academy_csv_load_into_df_pydict import academy_csv_info_getter, talent_csv_info_getter
-=======
 from app.classes.boto3_csv_load_pd import academy_csv_info_getter, talent_csv_info_getter
 from transform_applicants_csv import candidate_df
->>>>>>> 971f224c1ccaf782eb89d736af7d72a89b835ac1:app/classes/csv_data_transform_ERD.py
 from tabulate import tabulate
 
 
