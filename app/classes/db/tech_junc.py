@@ -10,3 +10,4 @@ class TechJunc(SqlAlchemyBase):
                     ForeignKey('tech.tech_id'), primary_key=True)
     candidate_id = Column(Integer, 
                     ForeignKey('candidate.candidate_id'), primary_key=True)
+    score = Column(Integer)
