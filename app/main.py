@@ -14,5 +14,13 @@ conn_str = (
 engine = global_init(conn_str, config.database, logging_level)
 
 # Adding txt file data into sql database.
+<<<<<<< HEAD
 txt_pipeline = TextFilePipeline(engine, logging_level)
 txt_pipeline.upload_all_txt_files("data21-final-project")
+=======
+# txt_pipeline = TextFilePipeline(engine, logging_level)
+# txt_pipeline.upload_all_txt_files("data21-final-project")
+
+jl = JsonLoad()
+
+>>>>>>> 8199deccfdf84675e82113e0cf8dee9f353e56cb
