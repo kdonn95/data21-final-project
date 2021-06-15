@@ -1,5 +1,5 @@
 import pandas as pd
-from boto3_academy_csv_load_into_df_pydict import academy_csv_info_getter, talent_csv_info_getter
+from boto3_csv_load_pd import academy_csv_info_getter, talent_csv_info_getter
 from tabulate import tabulate
 
 
@@ -97,12 +97,25 @@ class transformCSVdataFrames:
                                                                                                     regex=True)
         return final_big_candidate_df
 
+    def identify_academy_dropout_rows(self, nice_format_df):
+        for index, row_data in nice_format_df.iterrows():
+            check_nulls = 0
+            score_column_values = row_data[-6:]
+            for score_field in score_column_values:
+                if pd.isnull(score_field):
+                    check_nulls += 1
+
+            if check_nulls == len(score_column_values):
+                nice_format_df.drop(index, inplace=True)
+        nice_format_df.reset_index(drop=True, inplace=True)
+
 
 academy_raw_csv_df_dict = academy_csv_info_getter.create_dict_of_csv_pd_dataframes()
 talent_raw_csv_df_dict = talent_csv_info_getter.create_dict_of_csv_pd_dataframes()
 
 x = transformCSVdataFrames(academy_raw_csv_df_dict, talent_raw_csv_df_dict)
 scores_table, courses_table = x.academy_csv_scores_and_course_dfs_setup()
+x.identify_academy_dropout_rows(scores_table)
 candidates_table = x.talent_csv_new_df_setup()
 print(tabulate(courses_table.head()))
 print(tabulate(candidates_table.head()))
