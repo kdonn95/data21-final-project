@@ -1,5 +1,5 @@
 import pandas as pd
-from boto3_academy_csv_load_into_df_pydict import academy_csv_info_getter, talent_csv_info_getter
+from app.classes.boto3_academy_csv_load_into_df_pydict import academy_csv_info_getter, talent_csv_info_getter
 from tabulate import tabulate
 
 
