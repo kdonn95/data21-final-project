@@ -1,10 +1,6 @@
 import pandas as pd
-<<<<<<< HEAD
 from app.classes.boto3_csv_load_pd import academy_csv_info_getter, talent_csv_info_getter
-=======
-from boto3_csv_load_pd import academy_csv_info_getter, talent_csv_info_getter
 from transform_applicants_csv import candidate_df
->>>>>>> aebd48486c744dde9c37e749cb55f5ba9f5f313c
 from tabulate import tabulate
 
 
