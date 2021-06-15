@@ -5,21 +5,27 @@ from sqlalchemy.orm import sessionmaker
 
 
 class JsonLoad(Logger):
-    def init(self, engine, logging_level):
+    def __init__(self, engine, logging_level):
         # Initialise logging
-        Logger.init(self, logging_level)
+        Logger.__init__(self, logging_level)
         # Setting up connection to sql server.
         self.engine = engine
         factory = sessionmaker(bind=self.engine)
         self.session = factory()
         self.session.expire_on_commit = False
 
-    def candidate_cols(self):
-        return self.engine.execute(f"""SELECT candidate_name FROM 
-        candidate""").fetchall()
-
     def check_candidate_exists(self, name):
         self.log_print("Checking if candidate exists", "INFO")
-        x = self.engine.execute(f"SELECT * FROM candidate WHERE "
+        isempty = self.engine.execute(f"SELECT * FROM candidate WHERE "
                                 f"candidate_name = '{name}'").fetchall()
-        self.log_print(x, "INFO")
+        self.log_print(isempty, "INFO")
+        if isempty == []:
+            return False
+        else:
+            self.log_print(f'{name} already exists', "FLAG")
+            candidate_id = self.engine.execute(f"SELECT candidate_id FROM candidate WHERE "
+                                f"candidate_name = '{name}'").fetchone()
+            return candidate_id
+
+    def insert_candidate(self, name):
+

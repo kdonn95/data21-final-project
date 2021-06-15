@@ -1,7 +1,7 @@
 from app.classes.json_extract import JsonExtract
 import datetime
 import pandas as pd
-
+from app.classes.logger import Logger
 
 class JsonTransform:
     def __init__(self):
@@ -19,6 +19,8 @@ class JsonTransform:
 
     def to_bool(self, field):
         field = field.lower()
+        Logger.init(f"{field} to upper.", 'DEBUG')
+        #convert string values to bools
         if field == 'pass' or field == 'yes':
             return True
         elif field == 'fail' or field == 'no':
@@ -28,6 +30,7 @@ class JsonTransform:
 
 
     def clean_text(self, text):
+        Logger.init(f"fix apostrophes", 'DEBUG')
         return text.replace("`", "'")\
             .replace("´", "'")\
             .replace("‘", "'")\
@@ -36,6 +39,7 @@ class JsonTransform:
 
 
     def convert_date(self, value):
+        Logger.init(f"{value} to datetime", 'DEBUG')
         return datetime.date(int(value[6:11]), int(value[3:5]), int(value[0:2]))
 
 
