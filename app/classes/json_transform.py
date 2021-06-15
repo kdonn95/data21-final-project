@@ -6,12 +6,7 @@ import pandas as pd
 
 
 class JsonTransform:
-    def __init__(self, engine):
-        # Setting up connection to sql server.
-        self.engine = engine
-        # Connecting to the sql server.
-        connection = self.engine.connect()
-        self.je = JsonExtract([])
+    def __init__(self):
         self.all_details = {'name': [],
                        'date': [],
                        'tech_self_score': [],
@@ -35,7 +30,11 @@ class JsonTransform:
 
 
     def clean_text(self, text):
-        return text.replace("'", "").title()
+        return text.replace("`", "'")\
+            .replace("´", "'")\
+            .replace("‘", "'")\
+            .replace("’", "'")\
+            .title()
 
 
     def convert_date(self, value):
@@ -91,13 +90,3 @@ class JsonTransform:
         # Turns all details from dictionary created into a dataframe
         transformed_df = pd.DataFrame(self.all_details)
         return transformed_df
-
-#
-# je = JsonExtract([])
-# page1_df = next(je.yield_pages())
-# jt = JsonTransform()
-# from tabulate import tabulate
-# print(tabulate(jt.transform_to_df(page1_df)))
-
-
-

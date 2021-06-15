@@ -5,9 +5,10 @@ from app.classes.json_transform import *
 
 # These tests checks our cleaning functions work correctly
 def test_name():
-    df = JsonTransform().clean_text('Juan D\'Arcy')
+    df = JsonTransform().clean_text('Juan D’Arcy')  # this has one of the
+    # weird apostrophes in to test
     assert isinstance(df, str)
-    assert "'" not in df
+    assert "’" not in df
 
 
 def test_date():
@@ -44,3 +45,4 @@ def test_columntypes():
         assert isinstance(i, bool)
     for i in assessment_df['course_interest']:
         assert isinstance(i, str)
+
