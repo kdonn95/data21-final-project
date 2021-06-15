@@ -13,8 +13,8 @@ conn_str = (
 engine = global_init(conn_str, config.database, "NORMAL")
 
 #////////// for testing json tyransforms:
-je = JsonExtract([])
-page1_df = next(je.yield_pages())
-jt = JsonTransform(engine)
-from tabulate import tabulate
-print(tabulate(jt.transform_to_df(page1_df).columns))
+# je = JsonExtract([])
+# page1_df = next(je.yield_pages())
+# jt = JsonTransform(engine)
+# from tabulate import tabulate
+# print(tabulate(jt.transform_to_df(page1_df)))

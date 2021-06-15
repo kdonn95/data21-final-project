@@ -91,3 +91,13 @@ class JsonTransform:
         # Turns all details from dictionary created into a dataframe
         transformed_df = pd.DataFrame(self.all_details)
         return transformed_df
+
+#
+# je = JsonExtract([])
+# page1_df = next(je.yield_pages())
+# jt = JsonTransform()
+# from tabulate import tabulate
+# print(tabulate(jt.transform_to_df(page1_df)))
+
+
+
