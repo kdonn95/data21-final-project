@@ -5,7 +5,7 @@ from datetime import datetime
 from tabulate import tabulate
 from pprint import pprint
 from fuzzywuzzy import process
-import string
+
 
 from boto3_academy_csv_load_into_df_pydict import GetS3CSVinfo
 
@@ -40,6 +40,7 @@ class transformAppCSV:
 
          self.talent_csv_info_getter = GetS3CSVinfo('data21-final-project', 'Talent/')
          self.talent_csv_df_dict = self.talent_csv_info_getter.create_dict_of_csv_pd_dataframes()
+         self.combined_applicants_df = pd.DataFrame()
          
       def transform_dfs(self):
 
@@ -134,6 +135,8 @@ class transformAppCSV:
                logger.warning(f'Rows with no condidate contact info {self.talent_csv_df_dict[key][self.talent_csv_df_dict[key][cols].isna().all(1)]}')
             
 
+            # self.combined_applicants_df = self.combined_applicants_df.append(self.talent_csv_df_dict[key])
+            self.combined_applicants_df =  pd.concat([self.combined_applicants_df, self.talent_csv_df_dict[key]], ignore_index=True)
 
             # logging any staff names that are similar to check for mispellings
             def get_matches(name, column,limit = 500):
@@ -149,10 +152,13 @@ class transformAppCSV:
                   logger.warning(f'{name} is {match[1]}% similar to {match[0]} ')
 
             #logging the dataframes 
-            logger.debug(f'\n{list(self.talent_csv_df_dict[key].columns)}')  
-            logger.debug(f'{key}\n{tabulate(self.talent_csv_df_dict[key])}')
+            # logger.debug(f'\n{list(self.talent_csv_df_dict[key].columns)}')  
+            # logger.debug(f'{key}\n{tabulate(self.talent_csv_df_dict[key])}')
+            # logger.debug(f'{key}\n{tabulate(self.combined_applicants_df)}')
 
-         return self.talent_csv_df_dict
+            
+         # return self.talent_csv_df_dict
+         return self.combined_applicants_df
 
       
 
@@ -160,9 +166,9 @@ class transformAppCSV:
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # so that console doesn't truncate dataframe results -->> print all 0-n rows! 
    pd.set_option("expand_frame_repr",True)
 
-   df_dict =  transformAppCSV()
-   df_dict = df_dict.transform_dfs()
+   candidate_df =  transformAppCSV()
+   candidate_df = candidate_df.transform_dfs()
   
-   for key in df_dict.keys():
-      pass
-      pprint(df_dict['Jan2019Applicants'])
+   
+   logger.debug(f'\n{list(candidate_df.columns)}')  
+   logger.debug(tabulate(candidate_df))
