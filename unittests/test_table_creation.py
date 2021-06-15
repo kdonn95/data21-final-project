@@ -14,17 +14,19 @@ connection = engine.connect()
 
 tablenames = [
             'candidate', 
-            'strengths', 
-            'tech', 
-            'trainer', 
-            'weaknesses',
+            'course_staff_junc',
+            'course_type',
             'course',
-            'spartan',
+            'location',
+            'sparta_day',
+            'staff',
             'strength_junc',
+            'strengths',
             'tech_junc',
-            'test',
+            'tech',
             'weaknesses_junc',
-            'scores'
+            'weaknesses',
+            'weekly_performance'
             ]
 
 
@@ -36,7 +38,7 @@ def test_table_creation():
                     """)
     
     # initialise database
-    global_init(conn_str, config.database)
+    global_init(conn_str, config.database, "DEBUG")
     engine.execute(f'USE {config.database};')
     tables = engine.execute(f"""
                             SELECT name FROM {config.database}.sys.tables;
