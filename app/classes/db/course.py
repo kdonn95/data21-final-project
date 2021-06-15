@@ -10,3 +10,4 @@ class Course(SqlAlchemyBase):
     course_type_id = Column(Integer, ForeignKey('course_type.course_type_id'))
     course_name = Column(String)
     start_date = Column(Date)
+    duration = Column(Integer)
