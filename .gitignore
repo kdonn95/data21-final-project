@@ -134,5 +134,7 @@ dmypy.json
 
 #transform test file
 # transform_applicants_csv.py
+cliff_notes.py
+abc.py
 *Pipfile
 *.lock
