@@ -66,6 +66,10 @@ class transformCSVdataFrames:
                                                              scores_weeks_dict[week_key]], ignore_index=True)
         # course start date: convert to pandas date format
         course_table_df['course_start_date'] = pd.to_datetime(course_table_df['course_start_date']).dt.date
+        # rearrange columns in all_courses_score_values_df
+        current_col_list = all_courses_score_values_df.columns.to_list()
+        new_cols_list = current_col_list[:2] + current_col_list[3:5] + [current_col_list[2]] + current_col_list[5:]
+        all_courses_score_values_df = all_courses_score_values_df[new_cols_list]
         return all_courses_score_values_df, course_table_df
 
     def talent_csv_new_df_setup(self):
