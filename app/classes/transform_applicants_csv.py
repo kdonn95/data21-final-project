@@ -7,7 +7,7 @@ from pprint import pprint
 from fuzzywuzzy import process
 import string
 
-from boto3_academy_csv_load_into_df_pydict import GetS3CSVinfo
+from app.classes.boto3_academy_csv_load_into_df_pydict import GetS3CSVinfo
 
 
 import logging

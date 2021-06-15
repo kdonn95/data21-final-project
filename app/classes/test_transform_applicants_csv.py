@@ -4,7 +4,8 @@ from numpy import datetime64
 from app.classes.boto3_academy_csv_load_into_df_pydict import talent_csv_df_dict
 from tabulate import tabulate
 from transform_applicants_csv import *
-from datetime import  datetime
+from datetime import datetime
+
 
 class TestTransformApplicantsCsv(unittest.TestCase):
     def test_invite_date(self):
