@@ -17,3 +17,4 @@ txt_pipeline = TextFilePipeline(engine, logging_level)
 txt_pipeline.upload_all_txt_files("data21-final-project")
 
 #print(list(engine.execute("""SELECT location_name FROM location""")))
+
