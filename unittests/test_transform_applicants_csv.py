@@ -18,11 +18,11 @@ class TestTransformApplicantsCsv(unittest.TestCase):
             return new_list
         index = random.randint(1, len(new_list))
         random_row = random.randint(0, len(df_dict[new_list[index]]))
-        assert type(df_dict[new_list[index]]['invite_date'][random_row]) is datetime64[ns]
+        assert type(df_dict[new_list[index]]['date'][random_row]) is datetime64[ns]
 
     def test_email(self):
-        # email = df_dict['April2019Applicants']['email'][1]
-        # assert email == 'maudas1@mapquest.com'
+        email = df_dict['email'][1]
+        assert email == 'maudas1@mapquest.com'
         new_list = []
         for key in df_dict.keys():
             new_list.append(key)
@@ -33,8 +33,8 @@ class TestTransformApplicantsCsv(unittest.TestCase):
         assert type(df_dict[new_list[index]]['email'][random_row]) is str
 
     def test_phone_number(self):
-        # phone_number = df_dict['April2019Applicants']['phone_number'][1]
-        # assert phone_number == '+449577280155'
+        phone_number = df_dict['phone_number'][1]
+        assert phone_number == '+449577280155'
         new_list = []
         for key in df_dict.keys():
             new_list.append(key)
