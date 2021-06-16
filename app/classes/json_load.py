@@ -27,5 +27,6 @@ class JsonLoad(Logger):
                                 f"candidate_name = '{name}'").fetchone()
             return candidate_id
 
-    def insert_candidate(self, name):
-
+    def insert_new_candidate(self, name):
+        self.engine.execute(f"SELECT * FROM candidate WHERE "
+                            f"candidate_name = '{name}'")
