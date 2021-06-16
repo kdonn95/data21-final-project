@@ -42,8 +42,8 @@ class TransformCSVdataFrames:
                         scores_weeks_dict[week_num].rename(columns={'name': 'spartan_name', 'trainer': 'trainer_name',
                                                                     col_name: sparta_attribute}, inplace=True)
                         # add week and course columns to comply with ERD format
-                        scores_weeks_dict[week_num]['Week'] = week_num
-                        scores_weeks_dict[week_num]['Course'] = ac_fields[0] + ac_fields[1]
+                        scores_weeks_dict[week_num]['week_number'] = week_num
+                        scores_weeks_dict[week_num]['course_name'] = ac_fields[0] + ' ' + ac_fields[1]
                     else:  # i.e., if new DF already has data for this week -> add this column to the new DF
                         scores_weeks_dict[week_num][sparta_attribute] = df_to_transform[col_name]
                     if week_num > max_week_num:
