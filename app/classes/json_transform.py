@@ -4,7 +4,8 @@ import pandas as pd
 from app.classes.logger import Logger
 
 class JsonTransform:
-    def __init__(self):
+    def __init__(self, logging_level):
+        Logger.__init__(self, logging_level)
         self.all_details = {'name': [],
                        'date': [],
                        'tech_self_score': [],
@@ -19,7 +20,7 @@ class JsonTransform:
 
     def to_bool(self, field):
         field = field.lower()
-        Logger.init(f"{field} to upper.", 'DEBUG')
+        self.log_print(f"{field} to upper.", 'DEBUG')
         #convert string values to bools
         if field == 'pass' or field == 'yes':
             return True
@@ -30,7 +31,7 @@ class JsonTransform:
 
 
     def clean_text(self, text):
-        Logger.init(f"fix apostrophes", 'DEBUG')
+        self.log_print(f"fix apostrophes", 'DEBUG')
         return text.replace("`", "'")\
             .replace("´", "'")\
             .replace("‘", "'")\
@@ -39,11 +40,12 @@ class JsonTransform:
 
 
     def convert_date(self, value):
-        Logger.init(f"{value} to datetime", 'DEBUG')
+        self.log_print(f"{value} to datetime", 'DEBUG')
         return datetime.date(int(value[6:11]), int(value[3:5]), int(value[0:2]))
 
 
     def transform_to_df(self, page):
+        """takes untransformed df of json data and applies transformations on each column"""
         page = page.fillna(0)
         # Cleans each name and then adds to empty dictionary (which will be turned to dataframe later)
         for name in page['name']:
@@ -91,4 +93,6 @@ class JsonTransform:
 
         # Turns all details from dictionary created into a dataframe
         transformed_df = pd.DataFrame(self.all_details)
+        self.log_pprint('Transform json into df', 'INFO')
+        self.log_pprint(transformed_df, 'DEBUG')
         return transformed_df

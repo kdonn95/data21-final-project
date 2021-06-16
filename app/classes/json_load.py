@@ -2,8 +2,10 @@ import datetime
 
 from app.classes.json_transform import JsonTransform
 # import orm
+from app.classes.get_config import GetConfig
 from app.classes.logger import Logger
 from sqlalchemy.orm import sessionmaker
+
 
 
 class JsonLoad(Logger):
@@ -16,21 +18,27 @@ class JsonLoad(Logger):
         self.session = factory()
         self.session.expire_on_commit = False
 
-    def check_candidate_exists(self, name):
+    def insert_candidate_return_id(self, candidate_name):
+        """checks if the candidate exists, if so returns their id, if not
+        inserts them as a new row and returns their id"""
         self.log_print("Checking if candidate exists", "INFO")
         isempty = self.engine.execute(f"SELECT * FROM candidate WHERE "
-                                f"candidate_name = '{name}'").fetchall()
+                                f"candidate_name = '{candidate_name}'").fetchall()
         self.log_print(isempty, "INFO")
+        #if they are not in the database
         if isempty == []:
-            return False
+            #returns the created candidate id
+            return self.insert_new_candidate(candidate_name)
+        # if they are already in the database
         else:
+
             #self.log_print(f'{name} already exists', "FLAG")
             candidate_id = self.engine.execute(f"SELECT candidate_id FROM candidate WHERE "
-                                f"candidate_name = '{name}'").fetchall()
+                                f"candidate_name = '{candidate_name}'").fetchall()
             return candidate_id[0][0]
 
-    def insert_candidate(self, name):
-        return self.engine.execute(f"INSERT INTO candidate (candidate_name) VALUES ('{name}')")
+    def check_candidate_exists(self, name):
+        return self.engine.execute(f"SELECT * FROM candidate WHERE candidate_name = '{name}'")
 
     def insert_sparta_day(self, name, bool_lst, date, course_interest):
         if self.check_candidate_exists(name):
@@ -53,6 +61,14 @@ class JsonLoad(Logger):
                                        f"'{bool_lst[3]}',"
                                        f"'{course_interest}')")
         else:
-            self.insert_candidate(name)
+            self.insert_new_candidate(name)
             self.insert_sparta_day(name, bool_lst, date, course_interest)
+
+    def insert_new_candidate(self, candidate_name):
+        """insetrs new candidate into candidate table and returns their id"""
+        self.engine.execute(f"INSERT INTO candidate (candidate_name) VALUES ('{candidate_name}')")
+        self.log_print(f'insert {candidate_name} as new candidate in candidate', "INFO")
+        candidate_id = self.engine.execute(
+            f"SELECT candidate_id FROM candidate WHERE candidate_name = '{candidate_name}'")
+        return candidate_id
 
