@@ -54,7 +54,7 @@ class TextFilePipeline(Logger):
                           if_exists='append', index=False)
 
             # Updating candidate's ID in the .
-            candidate_id = self.__get_candidate_id(name)
+            candidate_id = self.get_candidate_id(name)
             data_frame.loc[index, "candidate_id"] = candidate_id
 
         # Removes the Name column from the data frame 
@@ -71,7 +71,7 @@ class TextFilePipeline(Logger):
                 data_frame.loc[index, column_name] = int(data_frame.loc[index, column_name].replace('"', ''))
         return data_frame
 
-    def __get_candidate_id(self, name: str):
+    def get_candidate_id(self, name: str):
         # Get list of candidate names and ids.
         id_name_list = list(self.engine.execute("""
                                                 SELECT candidate_id, candidate_name FROM candidate
