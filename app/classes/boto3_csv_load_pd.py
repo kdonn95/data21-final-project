@@ -1,5 +1,4 @@
 import boto3
-from pprint import pprint
 import pandas as pd
 
 
@@ -24,9 +23,9 @@ class GetS3CSVinfo:
             # only want CSVs in list!
             if key_obj.key[-4:] == '.csv':
                 csv_counter += 1
-                print(f'Found CSV file: {key_obj.key}')
+                # print(f'Found CSV file: {key_obj.key}')
                 s3_csv_key_list.append(key_obj.key)
-        print(f'Number of CSV files found in {self.bucket_name}/{self.s3_sub_dir} = {csv_counter}')
+        print(f'Number of CSV files found in s3://{self.bucket_name}/{self.s3_sub_dir} = {csv_counter}')
         return s3_csv_key_list
 
     def create_dict_of_csv_pd_dataframes(self):
@@ -42,21 +41,3 @@ class GetS3CSVinfo:
             # read csv into pandas dataframe
             csv_dict_keyed_by_course[course_name_date] = pd.read_csv(csv_s3_object['Body'])
         return csv_dict_keyed_by_course
-
-
-# s3://data21-final-project/ is the location of the CSVs we want here
-# 'Academy/' and 'Talent/' are the sub-directories with CSVs
-academy_csv_info_getter = GetS3CSVinfo('data21-final-project', 'Academy/')
-talent_csv_info_getter = GetS3CSVinfo('data21-final-project', 'Talent/')
-
-academy_csv_df_dict = academy_csv_info_getter.create_dict_of_csv_pd_dataframes()
-# print(academy_csv_df_dict)
-
-talent_csv_df_dict = talent_csv_info_getter.create_dict_of_csv_pd_dataframes()
-#print(talent_csv_df_dict)
-print(talent_csv_df_dict.keys())
-
-Sept2019_Applicants_df = talent_csv_df_dict['Sept2019Applicants']
-print(list(Sept2019_Applicants_df.columns))
-
-print(list(Sept2019_Applicants_df.columns))
