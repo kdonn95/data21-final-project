@@ -33,14 +33,14 @@ tables_columns = {
                                     ],
                 'course_type': [
                                 'course_type_id',
-                                'type',
-                                'duration'
+                                'type'
                                 ],
                 'course': [
                             'course_id',
                             'course_type_id',
                             'course_name',
-                            'start_date'
+                            'start_date',
+                            'duration'
                             ],
                 'location': [
                             'location_id',

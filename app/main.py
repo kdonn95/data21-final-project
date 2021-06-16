@@ -10,20 +10,11 @@ conn_str = (
             f'@{config.server}/master?driver={config.driver}'
             )
 
-engine = global_init(conn_str, config.database, logging_level)
 
-# Adding txt file data into\sql database.
-# txt_pipeline = TextFilePipeline(engine, logging_level)
-# txt_pipeline.upload_all_txt_files("data21-final-project")
+engine = global_init(conn_str, config.database, config.logging_level)
 
 
-#je = JsonExtract([])
-#page1_df = next(je.yield_pages())
-# jl = JsonLoad(engine, logging_level)
-# from tabulate import tabulate
-# print(tabulate(jl.insert_new_candidate('jason bason')))
-#
-# query = engine.execute(f"SELECT candidate_name, candidate_id from candidate WHERE 'jason bason' in candidate_name")
-# print('AAAA:',query)
+# Adding txt file data into sql database.
+txt_pipeline = TextFilePipeline(engine, config.logging_level)
+txt_pipeline.upload_all_txt_files(config.s3_bucket)
 
-print(config)
