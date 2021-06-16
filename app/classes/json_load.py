@@ -1,11 +1,7 @@
-import datetime
-
 from app.classes.json_transform import JsonTransform
-# import orm
-from app.classes.get_config import GetConfig
+from app.classes.json_extract import JsonExtract
 from app.classes.logger import Logger
 from sqlalchemy.orm import sessionmaker
-
 
 
 class JsonLoad(Logger):
@@ -72,3 +68,17 @@ class JsonLoad(Logger):
             f"SELECT candidate_id FROM candidate WHERE candidate_name = '{candidate_name}'")
         return candidate_id
 
+    def load_sql(self, transformed_df):
+        for i in range(transformed_df.shape[0]):
+            #for row in transformed_df:
+            name = self.check_candidate_exists(transformed_df['name'])
+            if len(list(name)) > 1:
+                ## Flag the name
+                pass
+            else:
+                boolean_lst = []
+                boolean_lst.append(transformed_df['self_dev'])
+                boolean_lst.append(transformed_df['geo_flex'])
+                boolean_lst.append(transformed_df['finance_support'])
+                boolean_lst.append(transformed_df['result'])
+                self.insert_sparta_day(transformed_df['name'], boolean_lst, transformed_df['date'], transformed_df['course_interest'])
