@@ -1,6 +1,6 @@
 from app.classes.text_file_pipeline import TextFilePipeline
 from app.main import engine
-import pandas as pd
+import pandas as pdpytest
 from datetime import datetime
 
 pipeline = TextFilePipeline(engine, "DEBUG")
