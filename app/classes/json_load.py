@@ -4,7 +4,7 @@ from app.classes.logger import Logger
 from sqlalchemy.orm import sessionmaker
 
 
-class JsonLoad(Logger):
+class JsonLoad:
     def __init__(self, engine, logging_level):
         # Initialise logging
         Logger.__init__(self, logging_level)
@@ -28,5 +28,5 @@ class JsonLoad(Logger):
             return candidate_id
 
     def insert_new_candidate(self, name):
-        self.engine.execute(f"SELECT * FROM candidate WHERE "
-                            f"candidate_name = '{name}'")
+        self.engine.execute(f"INSERT INTO candidate (candidate_name) VALUES ('{name}')")
+        self.log_print(f'insert {name} as new candidate in candidate', "DEBUG")
