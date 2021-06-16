@@ -17,7 +17,7 @@ class TestTransformApplicantsCsv(unittest.TestCase):
             new_list.append(key)
             return new_list
         index = random.randint(1, len(new_list))
-        random_row = random.randint(1, len(df_dict[new_list[index]]))
+        random_row = random.randint(0, len(df_dict[new_list[index]]))
         assert type(df_dict[new_list[index]]['invite_date'][random_row]) is datetime64[ns]
 
     def test_email(self):
@@ -26,6 +26,7 @@ class TestTransformApplicantsCsv(unittest.TestCase):
         new_list = []
         for key in df_dict.keys():
             new_list.append(key)
+            pprint(new_list)
             return new_list
         index = random.randint(1, len(new_list))
         random_row = random.randint(1, len(df_dict[new_list[index]]))
