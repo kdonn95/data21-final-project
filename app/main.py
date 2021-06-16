@@ -28,21 +28,13 @@ from app.classes.json_extract import JsonExtract
 #
 # engine.execute(f"DELETE FROM candidate WHERE candidate_name = 'jason bason'")
 #
-# jl = JsonLoad(engine, config.logging_level)
-# from tabulate import tabulate
+#jl = JsonLoad(engine, config.logging_level)
+from tabulate import tabulate
 # print(jl.insert_candidate_return_id('jason bason'))
 #
 # query = engine.execute(f"SELECT * FROM candidate WHERE candidate_name = 'jason bason'")
 # print('AAAA:',query.fetchall())
 
 
-je = JsonExtract([], config.logging_level, config.s3_bucket)
-page1_df = next(je.yield_pages())
-
-jt = JsonTransform(config.logging_level)
-transformed_page1_df = jt.transform_to_df(page1_df)
-
 jl = JsonLoad(engine, config.logging_level)
-jl.row_iterator(transformed_page1_df)
-
-#print(engine.execute(f"SELECT * FROM candidate"))
+jl.dev_json_ETL([])

@@ -1,15 +1,16 @@
 from app.classes.json_transform import JsonTransform
 from app.classes.json_extract import JsonExtract
 from app.classes.logger import Logger
-from sqlalchemy.orm import sessionmaker
 
+from app.classes.get_config import GetConfig
 
-class JsonLoad(Logger):
+class JsonLoad(JsonExtract, JsonTransform):
     def __init__(self, engine, logging_level):
         # Initialise logging
         Logger.__init__(self, logging_level)
         # Setting up connection to sql server.
         self.engine = engine
+        self.config = GetConfig()
 
     def insert_candidate_return_id(self, candidate_name):
         """checks if the candidate exists, if so returns their id, if not
@@ -39,7 +40,23 @@ class JsonLoad(Logger):
 
     def check_candidate_exists(self, name):
         return self.engine.execute(
-            f"SELECT * FROM candidate WHERE candidate_name = '{name}'")
+            f"SELECT * FROM candidate WHERE candidate_name = '{name}'").fetchone()
+
+    def prep_sparta_day(self, transformed_df):
+        name = self.check_candidate_exists(transformed_df['name'])
+        if len(list(name)) > 1:
+            self.log_print(f'insert {name} as new weakness in weaknesses',
+                           "INFO")
+            pass
+        else:
+            boolean_lst = []
+            boolean_lst.append(transformed_df['self_dev'])
+            boolean_lst.append(transformed_df['geo_flex'])
+            boolean_lst.append(transformed_df['finance_support'])
+            boolean_lst.append(transformed_df['result'])
+            self.insert_sparta_day(transformed_df['name'], boolean_lst,
+                                   transformed_df['date'],
+                                   transformed_df['course_interest'])
 
     def insert_sparta_day(self, name, bool_lst, date, course_interest):
         if self.check_candidate_exists(name):
@@ -55,7 +72,7 @@ class JsonLoad(Logger):
                                        f"course_interest) "
                                        f"VALUES ('{candidate_id}', "
                                        f"'1', "
-                                       f"CAST('{date}' as datetime),"
+                                       f"'{date}',"
                                        f"'{bool_lst[0]}', "
                                        f"'{bool_lst[1]}', "
                                        f"'{bool_lst[2]}', "
@@ -68,7 +85,6 @@ class JsonLoad(Logger):
     def populate_strengths_table(self, strength):
         """Checks whether a strength is already available in the strengths
         table, if not it will insert the strength and assign a primary key"""
-
         self.log_print("Populating strengths table", "INFO")
         is_empty = self.engine.execute(f"SELECT * FROM strengths WHERE "
                                        f"strength = "
@@ -84,15 +100,15 @@ class JsonLoad(Logger):
             return strength_id
 
     def insert_new_strength(self, strength):
-        self.engine.execute(f"INSERT INTO strengths (strength_name) VALUES ('{strength}')")
+        self.engine.execute(f"INSERT INTO strengths (strength) VALUES ('{strength}')")
         self.log_print( f'insert {strength} as new strength in strengths', "INFO")
-        candidate_id = self.engine.execute(f"SELECT strength_id FROM strengths WHERE strength = '{strength}'")
-        return candidate_id
+        strength_id = self.engine.execute(f"SELECT strength_id FROM strengths WHERE strength = '{strength}'")
+        return strength_id
 
     def populate_weaknesses_table(self, weakness):
         self.log_print("Populating weaknesses table", "INFO")
         is_empty = self.engine.execute(f"SELECT * FROM weaknesses WHERE "
-                                       f"strength = "
+                                       f"weakness = "
                                        f"'{weakness}'").fetchall()
         self.log_print(is_empty, "INFO")
         if not is_empty:
@@ -107,22 +123,52 @@ class JsonLoad(Logger):
     def insert_new_weakness(self, weakness):
         self.engine.execute(f"INSERT INTO weaknesses (weakness) VALUES ('{weakness}')")
         self.log_print( f'insert {weakness} as new weakness in weaknesses', "INFO")
-        candidate_id = self.engine.execute(f"SELECT weakness_id FROM weaknesses WHERE weakness = '{weakness}'")
-        return candidate_id
+        weakness_id = self.engine.execute(f"SELECT weakness_id FROM weaknesses WHERE weakness = '{weakness}'")
+        return weakness_id
 
     def row_iterator(self, transformed_df):
-        #for column in df
+        #for row in df
         for i in range(transformed_df.shape[0]):
+            candidate_id = self.insert_candidate_return_id(transformed_df['name'])
+            self.prep_sparta_day(transformed_df)
+            self.populate_strengths_table(transformed_df['strengths'])
+            self.populate_weaknesses_table(transformed_df['weaknesses'])
 
-            name = self.check_candidate_exists(transformed_df['name'])
-            if len(list(name)) > 1:
-                self.log_print( f'insert {name} as new weakness in weaknesses', "INFO")
-                pass
-            else:
-                boolean_lst = []
-                boolean_lst.append(transformed_df['self_dev'])
-                boolean_lst.append(transformed_df['geo_flex'])
-                boolean_lst.append(transformed_df['finance_support'])
-                boolean_lst.append(transformed_df['result'])
-                self.insert_sparta_day(transformed_df['name'], boolean_lst, transformed_df['date'], transformed_df['course_interest'])
+
+    def json_ETL(self, used_keys):
+        """this function runs the whole json ETL"""
+        #create extract and transform classes
+        je = JsonExtract(used_keys,
+                         self.config.logging_level,
+                         self.config.s3_bucket)
+        jt = JsonTransform(self.config.logging_level)
+
+        #take items from yield_pages() generator until empty
+        iterable = je.yield_pages()
+        _exhausted = object()
+        if next(iterable, _exhausted) == _exhausted:
+            self.log_print(
+                f'no more pages in generator function "yield pages"', "INFO")
+            pass
+        else:
+            self.log_print(
+                f'load transformed json dataframe into sql', "INFO")
+            transformed_page_df = jt.transform_to_df(iterable)
+        self.row_iterator(transformed_page_df)
+
+    def dev_json_ETL(self, used_keys):
+        """this function runs the whole json ETL"""
+        # create extract and transform classes
+        je = JsonExtract(used_keys,
+                         self.config.logging_level,
+                         self.config.s3_bucket)
+        jt = JsonTransform(self.config.logging_level)
+
+        # take items from yield_pages() generator until empty
+        iterable = next(je.yield_pages())
+
+        self.log_print(f'load transformed json dataframe into sql', "INFO")
+
+        transformed_page_df = jt.transform_to_df(iterable)
+        self.row_iterator(transformed_page_df)
 
