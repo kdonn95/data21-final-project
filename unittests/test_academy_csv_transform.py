@@ -1,4 +1,4 @@
-from app.classes.csv_data_transform_ERD import courses_table, scores_table, candidates_table
+from app.classes.csv_data_transform_erd import courses_table, scores_table, candidates_table
 import pandas as pd
 import unittest
 
