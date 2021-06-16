@@ -128,7 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+
 # IDE Settings
+
 .idea
 .vscode
 
@@ -139,3 +141,8 @@ abc.py
 *Pipfile
 *.lock
 user_story_11_and_7.py
+# My folder for working:
+work/
+
+#password file
+password.ini

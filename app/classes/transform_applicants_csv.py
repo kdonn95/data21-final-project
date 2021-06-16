@@ -7,7 +7,7 @@ from pprint import pprint
 from fuzzywuzzy import process
 
 
-from app.classes.boto3_academy_csv_load_into_df_pydict import GetS3CSVinfo
+from boto3_csv_load_pd import GetS3CSVinfo
 
 
 import logging
@@ -170,5 +170,6 @@ with pd.option_context('display.max_rows', None, 'display.max_columns', None):  
    candidate_df = candidate_df.transform_dfs()
   
    
-   logger.debug(f'\n{list(candidate_df.columns)}')  
-   logger.debug(tabulate(candidate_df))
+   # logger.debug(f'\n{list(candidate_df.columns)}')  
+   # logger.debug(tabulate(candidate_df))
+   print(candidate_df.info())

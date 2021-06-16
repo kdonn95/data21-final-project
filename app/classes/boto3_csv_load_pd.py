@@ -1,6 +1,16 @@
 import boto3
-from pprint import pprint
 import pandas as pd
+"""
+import sqlalchemy
+server = 'localhost,1433'
+database = 'Northwind'
+user = 'SA'
+password = 'Passw0rd2018'
+driver = 'SQL+Server'
+# ODBC+Driver+17+for+
+engine = sqlalchemy.create_engine(f"mssql+pyodbc://{user}:{password}@{server}/{database}?driver={driver}")
+connection = engine.connect()
+"""
 
 
 class GetS3CSVinfo:
@@ -50,13 +60,32 @@ academy_csv_info_getter = GetS3CSVinfo('data21-final-project', 'Academy/')
 talent_csv_info_getter = GetS3CSVinfo('data21-final-project', 'Talent/')
 
 academy_csv_df_dict = academy_csv_info_getter.create_dict_of_csv_pd_dataframes()
-#print(academy_csv_df_dict)
+# print(academy_csv_df_dict)
 
 talent_csv_df_dict = talent_csv_info_getter.create_dict_of_csv_pd_dataframes()
 #print(talent_csv_df_dict)
-print(talent_csv_df_dict.keys())
+#print(talent_csv_df_dict.keys())
 
 Sept2019_Applicants_df = talent_csv_df_dict['Sept2019Applicants']
-print(list(Sept2019_Applicants_df.columns))
+Business30_20191230_df = academy_csv_df_dict['Business_30_2019-12-30']
+#print(list(Sept2019_Applicants_df.columns))
+# strings and integer64 for scores in DF
+# DAVID FEEDBACK: USE LOGGING, NOT PRINTING!!!!
+#print(list(Business30_20191230_df.columns))
+#print(type(Sept2019_Applicants_df['degree'][0]))
 
-print(list(Sept2019_Applicants_df.columns))
+#for index, row in Sept2019_Applicants_df.iterrows():
+#    print('test_city', row['city'], len(row.index), type(row.index.values))
+# tested: DFs load nicely into SQL, ran a trial row for our big 'candidate' SQL table into local (Northwind) host
+#Sept2019_Applicants_df.to_sql('Cand_test', engine)
+"""
+candidate_test_data = [[1029343, 'john doe'.title(), '19-04-2018', 1, 1, 1, 1, 'Data', 'Male', '05-08-1996',
+                        'johndoe@fakeaddress.com', 'Narnia', '123 Fake street', 'AS14 4AN', '+44 1437 583539',
+                        'Necromancy', '22-08', 'Trainer Aslan']]
+candidate_col_names = ['candidate_id', 'candidate_name', 'date', 'self_development', 'geo_flex', 'financial_support',
+                       'result', 'course_interest', 'gender', 'dob', 'email', 'city', 'address', 'postcode',
+                       'phone_number', 'uni_degree', 'invited_date', 'invited_by']
+candidate_test_df = pd.DataFrame(candidate_test_data, columns=candidate_col_names)
+print(candidate_test_df)
+candidate_test_df.to_sql('Candidate', engine, if_exists='append')
+"""
