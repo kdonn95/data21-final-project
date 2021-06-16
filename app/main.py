@@ -15,6 +15,14 @@ engine = global_init(conn_str, config.database, config.logging_level)
 
 
 # Adding txt file data into sql database.
-txt_pipeline = TextFilePipeline(engine, config.logging_level)
-txt_pipeline.upload_all_txt_files(config.s3_bucket)
+# txt_pipeline = TextFilePipeline(engine, config.logging_level)
+# txt_pipeline.upload_all_txt_files(config.s3_bucket)
 
+engine.execute(f"DELETE FROM candidate WHERE candidate_name = 'jason bason'")
+
+jl = JsonLoad(engine, config.logging_level)
+from tabulate import tabulate
+print(jl.insert_candidate_return_id('jason bason'))
+
+query = engine.execute(f"SELECT * FROM candidate WHERE candidate_name = 'jason bason'")
+print('AAAA:',query.fetchall())
