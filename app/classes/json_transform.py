@@ -1,34 +1,33 @@
-from app.classes.json_extract import JsonExtract
 import datetime
 import pandas as pd
 from app.classes.logger import Logger
 
-class JsonTransform:
+
+class JsonTransform(Logger):
     def __init__(self, logging_level):
         Logger.__init__(self, logging_level)
-        self.all_details = {'name': [],
-                       'date': [],
-                       'tech_self_score': [],
-                       'strengths': [],
-                       'weaknesses': [],
-                       'self_dev': [],
-                       'geo_flex': [],
-                       'finance_support': [],
-                       'result': [],
-                       'course_interest': []}
-
+        self.all_details = {
+            'name': [],
+            'date': [],
+            'tech_self_score': [],
+            'strengths': [],
+            'weaknesses': [],
+            'self_dev': [],
+            'geo_flex': [],
+            'finance_support': [],
+            'result': [],
+            'course_interest': []}
 
     def to_bool(self, field):
         field = field.lower()
         self.log_print(f"{field} to upper.", 'DEBUG')
-        #convert string values to bools
+        # convert string values to bools
         if field == 'pass' or field == 'yes':
             return True
         elif field == 'fail' or field == 'no':
             return False
         else:
             pass
-
 
     def clean_text(self, text):
         self.log_print(f"fix apostrophes", 'DEBUG')
@@ -38,16 +37,17 @@ class JsonTransform:
             .replace("’", "'")\
             .title()
 
-
     def convert_date(self, value):
         self.log_print(f"{value} to datetime", 'DEBUG')
-        return datetime.date(int(value[6:11]), int(value[3:5]), int(value[0:2]))
-
+        return datetime.date(
+            int(value[6:11]), int(value[3:5]), int(value[0:2]))
 
     def transform_to_df(self, page):
-        """takes untransformed df of json data and applies transformations on each column"""
+        """takes untransformed df of json data and
+        applies transformations on each column"""
         page = page.fillna(0)
-        # Cleans each name and then adds to empty dictionary (which will be turned to dataframe later)
+        # Cleans each name and then adds to empty dictionary
+        # (which will be turned to dataframe later)
         for name in page['name']:
             new_name = self.clean_text(name)
             self.all_details['name'].append(new_name)
@@ -70,7 +70,8 @@ class JsonTransform:
         for weakness in page['weaknesses']:
             self.all_details['weaknesses'].append(weakness)
 
-        # Converts self development, geo-flexible, financial support self and result to a boolean and adds to dictionary
+        # Converts self development, geo-flexible, financial
+        # support self and result to a boolean and adds to dictionary
         for self_dev in page['self_development']:
             self_dev = self.to_bool(self_dev)
             self.all_details['self_dev'].append(self_dev)

@@ -1,6 +1,4 @@
 from app.classes.json_transform import JsonTransform
-# import orm
-from app.classes.get_config import GetConfig
 from app.classes.logger import Logger
 from sqlalchemy.orm import sessionmaker
 
@@ -41,3 +39,58 @@ class JsonLoad(Logger):
         candidate_id = self.engine.execute(
             f"SELECT candidate_id FROM candidate WHERE candidate_name = '{candidate_name}'")
         return candidate_id
+
+
+    def populate_strengths_table(self, strength):
+        """Checks whether a strength is already available in the strengths
+        table, if not it will insert the strength and assign a primary key"""
+
+        self.log_print("Populating strengths table", "INFO")
+        is_empty = self.engine.execute(f"SELECT * FROM strengths WHERE "
+                                       f"strength = "
+                                       f"'{strength}'").fetchall()
+        self.log_print(is_empty, "INFO")
+        if not is_empty:
+            return self.insert_new_strength(strength)
+        else:
+            self.log_print(f'{strength} already exists', "FLAG")
+            strength_id = self.engine.execute(
+                f"SELECT strength_id FROM strengths WHERE "
+                f"strength = '{strength}'").fetchone()
+            return strength_id
+
+    def insert_new_strength(self, strength):
+        self.engine.execute(f"INSERT INTO strengths (strength_name) VALUES ('{strength}')")
+        self.log_print( f'insert {strength} as new strength in strengths', "INFO")
+        candidate_id = self.engine.execute(f"SELECT strength_id FROM strengths WHERE strength = '{strength}'")
+        return candidate_id
+
+    def populate_weaknesses_table(self, weakness):
+        self.log_print("Populating weaknesses table", "INFO")
+        is_empty = self.engine.execute(f"SELECT * FROM weaknesses WHERE "
+                                       f"strength = "
+                                       f"'{weakness}'").fetchall()
+        self.log_print(is_empty, "INFO")
+        if not is_empty:
+            return self.insert_new_weakness(weakness)
+        else:
+            self.log_print(f'{weakness} already exists', "FLAG")
+            weakness_id = self.engine.execute(
+                f"SELECT weakness_id FROM weaknesses WHERE "
+                f"weakness = '{weakness}'").fetchone()
+            return weakness_id
+
+    def insert_new_weakness(self, weakness):
+        self.engine.execute(f"INSERT INTO weaknesses (weakness) VALUES ('{weakness}')")
+        self.log_print( f'insert {weakness} as new weakness in weaknesses', "INFO")
+        candidate_id = self.engine.execute(f"SELECT weakness_id FROM weaknesses WHERE weakness = '{weakness}'")
+        return candidate_id
+
+
+    def row_iterator(self, transformed_df):
+        for row in transformed_df:
+            print(row)
+            #self.insert_candidate_return_id('jason bason')
+            print(str(row['name'][0]))
+            #print(self.insert_candidate_return_id(str(row['name'])))
+            break

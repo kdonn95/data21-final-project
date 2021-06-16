@@ -4,15 +4,20 @@ import pandas as pd
 from app.classes.logger import Logger
 
 
-class JsonExtract:
-    def __init__(self, used_keylist, logging_level, bucket_name='data21-final-project'):
+class JsonExtract(Logger):
+    def __init__(self, used_keylist, logging_level,
+                 bucket_name='data21-final-project'):
         Logger.__init__(self, logging_level)
         self.bucket_name = bucket_name
         self.s3_resource = boto3.resource('s3')
         self.s3_client = boto3.client('s3')
         self.bucket = self.s3_resource.Bucket(self.bucket_name)
-        self.used_keylist = used_keylist
+        self.used_keylist_in = used_keylist
+        self.used_keylist_out = []
         self.keylist = self.get_bucket_json_key_list()
+
+    def get_used_keylist(self):
+        return self.used_keylist_out
 
     def get_bucket_json_key_list(self):
         """returns a list of pages(another list) of tuples (bucket_name, key)
@@ -22,12 +27,13 @@ class JsonExtract:
             if str(bucket_object.key[-5:]) == '.json':
                 keylist.append(bucket_object.key)
         self.log_print(f"get list of json file keys", 'INFO')
-        new_keylist = list(set(keylist) ^ set(self.used_keylist))
+        new_keylist = list(set(keylist) ^ set(self.used_keylist_in))
         new_keylist.sort()
         outlist = []
         for i in range(0, len(new_keylist), 20):
             chunk = new_keylist[i:i + 20]
             outlist.append(chunk)
+        self.used_keylist_out = new_keylist
         return outlist
 
     def return_bucket_json_body(self, key):
@@ -49,7 +55,8 @@ class JsonExtract:
         for key in keylist:
             row = self.return_bucket_json_body(key)
             rows_df = rows_df.append(row, ignore_index=True)
-        self.log_print(f"create and fill json extract datafrme for one page", 'INFO')
+        self.log_print(f"create and fill json extract datafrme for one page",
+                       'INFO')
         return rows_df
 
     def yield_pages(self):
