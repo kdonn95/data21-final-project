@@ -16,3 +16,7 @@ engine = global_init(conn_str, config.database, logging_level)
 # Adding txt file data into sql database.
 # txt_pipeline = TextFilePipeline(engine, logging_level)
 # txt_pipeline.upload_all_txt_files("data21-final-project")
+
+#engine.execute("DELETE FROM sparta_day")
+jl = JsonLoad(engine, 'INFO')
+#jl.insert_sparta_day('Joe Smith', [True, True, True, False], '2015-06-06', 'Data')
