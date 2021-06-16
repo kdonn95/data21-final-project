@@ -1,9 +1,7 @@
-import datetime
-
 from app.classes.json_transform import JsonTransform
+from app.classes.json_extract import JsonExtract
 from app.classes.logger import Logger
 from sqlalchemy.orm import sessionmaker
-
 
 
 class JsonLoad(Logger):
@@ -38,6 +36,10 @@ class JsonLoad(Logger):
         candidate_id = self.engine.execute(
             f"SELECT candidate_id FROM candidate WHERE candidate_name = '{candidate_name}'")
         return candidate_id
+
+    def check_candidate_exists(self, name):
+        return self.engine.execute(
+            f"SELECT * FROM candidate WHERE candidate_name = '{name}'")
 
     def insert_sparta_day(self, name, bool_lst, date, course_interest):
         if self.check_candidate_exists(name):
@@ -108,11 +110,19 @@ class JsonLoad(Logger):
         candidate_id = self.engine.execute(f"SELECT weakness_id FROM weaknesses WHERE weakness = '{weakness}'")
         return candidate_id
 
-
     def row_iterator(self, transformed_df):
-        for row in transformed_df:
-            print(row)
-            #self.insert_candidate_return_id('jason bason')
-            print(str(row['name'][0]))
-            #print(self.insert_candidate_return_id(str(row['name'])))
-            break
+        #for column in df
+        for i in range(transformed_df.shape[0]):
+
+            name = self.check_candidate_exists(transformed_df['name'])
+            if len(list(name)) > 1:
+                self.log_print( f'insert {name} as new weakness in weaknesses', "INFO")
+                pass
+            else:
+                boolean_lst = []
+                boolean_lst.append(transformed_df['self_dev'])
+                boolean_lst.append(transformed_df['geo_flex'])
+                boolean_lst.append(transformed_df['finance_support'])
+                boolean_lst.append(transformed_df['result'])
+                self.insert_sparta_day(transformed_df['name'], boolean_lst, transformed_df['date'], transformed_df['course_interest'])
+
