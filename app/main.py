@@ -32,8 +32,6 @@ academy_load_to_sql.load_to_sql_table(weekly_performance_df, 'weekly_performance
 academy_load_to_sql.load_to_sql_table(course_df, 'course')
 academy_load_to_sql.load_to_sql_table(course_type_df, 'course_type')
 
-
-
 # Adding txt file data into sql database.
 txt_pipeline = TextFilePipeline(engine, config.logging_level)
 txt_pipeline.upload_all_txt_files(config.s3_bucket)
