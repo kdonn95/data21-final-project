@@ -1,20 +1,21 @@
 import pandas as pd
-from app.classes.boto3_csv_load_pd import academy_csv_info_getter, talent_csv_info_getter
-from app.classes.transform_applicants_csv import candidate_df
-from tabulate import tabulate
+from app.classes.boto3_csv_load_pd import GetS3CSVinfo
+from app.classes.logger import Logger
 
 
-class TransformCSVdataFrames:
+class TransformCSVdataFrames(Logger):
     # transform csv dataframes to be like SQL target schema
-    def __init__(self, academy_csv_dfs_dict, talent_csv_dfs_dict):
-        # 'resource','client' APIs are built into Boto3
-        self.academy_csv_dfs_dict = academy_csv_dfs_dict
-        self.talent_csv_dfs_dict = talent_csv_dfs_dict
+    def __init__(self, logging_level):
+        Logger.__init__(self, logging_level)
+        # s3://data21-final-project/ is the location of the CSVs we want here
+        # 'Academy/' and 'Talent/' are the sub-directories with CSVs
+        academy_csv_info_getter = GetS3CSVinfo('data21-final-project', 'Academy/')
+        # talent_csv_info_getter = GetS3CSVinfo('data21-final-project', 'Talent/')
+        self.academy_csv_dfs_dict = academy_csv_info_getter.create_dict_of_csv_pd_dataframes()
+        # self.talent_csv_dfs_dict = talent_csv_info_getter.create_dict_of_csv_pd_dataframes()
 
     def academy_csv_scores_and_course_dfs_setup(self):
         # scores SQL table data retrieval - more difficult
-        # scores_table_df_cols = ['Analytic', 'Independent', 'Determined', 'Professional', 'Studious', 'Imaginative']
-        # scores_table_df = pd.DataFrame(columns=['spartan_name', 'trainer_name', 'week_number'] + scores_table_df_cols)
         course_table_df_cols = ['course_type', 'course_name', 'course_start_date', 'duration_weeks']
         course_table_df = pd.DataFrame(columns=course_table_df_cols)
         all_courses_new_df_is_empty = True
@@ -73,11 +74,7 @@ class TransformCSVdataFrames:
         all_courses_score_values_df = all_courses_score_values_df[new_cols_list]
         return all_courses_score_values_df, course_table_df
 
-    def talent_csv_new_df_setup(self):
-        # note to self: 'candidate_df' is imported
-        final_big_candidate_df = candidate_df
-        return final_big_candidate_df
-
+    # delete rows if and only if all 6 scores
     def identify_academy_dropout_rows(self, nice_format_df):
         for index, row_data in nice_format_df.iterrows():
             check_nulls = 0
@@ -85,30 +82,10 @@ class TransformCSVdataFrames:
             for score_field in score_column_values:
                 if pd.isnull(score_field):
                     check_nulls += 1
-
             if check_nulls == len(score_column_values):
                 # delete rows where all scores are null
                 nice_format_df.drop(index, inplace=True)
         # reset the indices - don't care about their values
         nice_format_df.reset_index(drop=True, inplace=True)
-
-
-academy_raw_csv_df_dict = academy_csv_info_getter.create_dict_of_csv_pd_dataframes()
-talent_raw_csv_df_dict = talent_csv_info_getter.create_dict_of_csv_pd_dataframes()
-
-x = TransformCSVdataFrames(academy_raw_csv_df_dict, talent_raw_csv_df_dict)
-scores_table, courses_table = x.academy_csv_scores_and_course_dfs_setup()
-x.identify_academy_dropout_rows(scores_table)
-candidates_table = x.talent_csv_new_df_setup()
-print(tabulate(courses_table.head()))
-print(candidates_table.columns)
-print(tabulate(candidates_table.head()))
-print(scores_table.columns)
-print(tabulate(scores_table.head(20)))
-# y = candidates_table.at[0, 'sparta_day_date']
-# print(y, type(y))
-
-# spartan_table_df_cols = ['spartan_name']
-# trainer_table_df_cols = ['trainer_name']
-# split these later via dataframe properties: new = old.filter(['A','B','D'], axis=1)
-#    and df.drop(columns=['B', 'C'])
+        self.log_print(nice_format_df, 'DEBUG')
+        self.log_print('Debugging dataframe reduction for academy dropouts', 'INFO')

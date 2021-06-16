@@ -1,18 +1,19 @@
-from app.classes.csv_data_transform_ERD import scores_table, courses_table, candidates_table
+from app.classes.csv_data_transform_erd import TransformCSVdataFrames
 import pandas as pd
-# from tabulate import tabulate
 from app.classes.logger import Logger
 from sqlalchemy.orm import sessionmaker
+from app.classes.transform_applicants_csv import candidate_df
+# 'candidate_df' = Talent directory CSV dataframe with 'Aug2019Applicants.csv', etc.
 
 
 # need to rearrange csv_data_transform_ERD tables into tables as show in Sparta ERD
-class SpartaERDFormat:
-    def __init__(self, c_scores_table, c_courses_table, c_candidates_table, engine, logging_level):
-        self.scores_table = c_scores_table
-        self.courses_table = c_courses_table
-        self.candidates_table = c_candidates_table
-        # Initialise logging
-        Logger.init(self, logging_level)
+class SpartaERDFormat(Logger):
+    def __init__(self, engine, logging_level):
+        Logger.__init__(self, logging_level)
+        self.transformed_df = TransformCSVdataFrames(logging_level)
+        self.scores_table, self.courses_table = self.transformed_df.academy_csv_scores_and_course_dfs_setup()
+        self.candidates_table = candidate_df
+
         # Setting up connection to sql server.
         self.engine = engine
         factory = sessionmaker(bind=self.engine)
@@ -27,6 +28,8 @@ class SpartaERDFormat:
         course_type["course_type_id"] = course_type.index + 1
         # put index at front
         cols = ["course_type_id", "course_type"]
+        self.log_print(course_type[cols], 'DEBUG')
+        self.log_print('Debugging COURSE_TYPE table dataframe', 'INFO')
         return course_type[cols]
 
     # get ERD 'course' table
@@ -40,6 +43,8 @@ class SpartaERDFormat:
         course["course_id"] = course.index + 1
         # put index at front
         course_cols = [course.columns.tolist()[-1]]+course.columns.tolist()[0:-1]
+        self.log_print(course[course_cols], 'DEBUG')
+        self.log_print('Debugging COURSE table dataframe', 'INFO')
         return course[course_cols]
 
     # get ERD 'weekly performance' table
@@ -69,11 +74,6 @@ class SpartaERDFormat:
                                                       right_on='candidate_name')
         weekly_perf_cols_final = ['candidate_id', 'course_id', 'week_number', 'Analytic', 'Independent', 'Determined',
                                   'Professional', 'Studious', 'Imaginative']
+        self.log_print(weekly_performance[weekly_perf_cols_final], 'DEBUG')
+        self.log_print('Debugging WEEKLY_PERFORMANCE table dataframe', 'INFO')
         return weekly_performance[weekly_perf_cols_final]
-
-
-x = SpartaERDFormat(scores_table, courses_table, candidates_table)
-weekly_performance_table = x.make_weekly_performance_table()
-course_table = x.make_course_table()
-course_type_table = x.make_course_type_table()
-

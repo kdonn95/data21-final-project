@@ -41,12 +41,3 @@ class GetS3CSVinfo:
             # read csv into pandas dataframe
             csv_dict_keyed_by_course[course_name_date] = pd.read_csv(csv_s3_object['Body'])
         return csv_dict_keyed_by_course
-
-
-# s3://data21-final-project/ is the location of the CSVs we want here
-# 'Academy/' and 'Talent/' are the sub-directories with CSVs
-academy_csv_info_getter = GetS3CSVinfo('data21-final-project', 'Academy/')
-talent_csv_info_getter = GetS3CSVinfo('data21-final-project', 'Talent/')
-
-academy_csv_df_dict = academy_csv_info_getter.create_dict_of_csv_pd_dataframes()
-talent_csv_df_dict = talent_csv_info_getter.create_dict_of_csv_pd_dataframes()

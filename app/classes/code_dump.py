@@ -99,6 +99,9 @@ print(candidate_test_df)
 candidate_test_df.to_sql('Candidate', engine, if_exists='append')
 """
 
+# scores_table_df_cols = ['Analytic', 'Independent', 'Determined', 'Professional', 'Studious', 'Imaginative']
+# scores_table_df = pd.DataFrame(columns=['spartan_name', 'trainer_name', 'week_number'] + scores_table_df_cols)
+
 #print(list(Sept2019_Applicants_df.columns))
 # strings and integer64 for scores in DF
 # DAVID FEEDBACK: USE LOGGING, NOT PRINTING!!!!
