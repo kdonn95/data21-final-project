@@ -53,7 +53,7 @@ class SpartaERDFormat(Logger):
         # get 'candidate_id' column values from SQL row-by-row
         for index, row_data in candidates_table_trunc.iterrows():
             # get 'candidate_name' from local
-            candidate_name = row_data['candidate_name']
+            candidate_name = row_data['candidate_name'].replace("'", "''")
             # get 'candidate_id' from SQL via engine
             candidate_id = self.engine.execute(
                 f"SELECT candidate_id FROM candidate WHERE candidate_name = '{candidate_name}'").fetchone()
@@ -70,7 +70,7 @@ class SpartaERDFormat(Logger):
         weekly_performance_df = weekly_performance_df.merge(candidates_table_trunc, left_on='candidate_name',
                                                             right_on='candidate_name')
         weekly_perf_cols_final = ['candidate_id', 'course_id', 'week_no', 'Analytic', 'Independent', 'Determined',
-                                  'Professional', 'Studious', 'Imaginative']
+                                  'Professional', 'Studious', 'Imaginative', 'course_name']
         self.log_print(weekly_performance_df[weekly_perf_cols_final], 'DEBUG')
         self.log_print('Debugging WEEKLY_PERFORMANCE table dataframe', 'INFO')
         return weekly_performance_df[weekly_perf_cols_final]
@@ -99,6 +99,7 @@ class SpartaERDFormat(Logger):
         staff_id_name_list = list(self.engine.execute("""SELECT staff_id, staff_name FROM staff"""))
         course_id_name_list = list(self.engine.execute("""SELECT course_id, course_name FROM course"""))
         things_to_match_df = self.make_staff_course_junc_no_ids()
+        # add columms
         things_to_match_df['course_id'] = [0 for i in range(len(things_to_match_df))]
         things_to_match_df['staff_id'] = [0 for i in range(len(things_to_match_df))]
         for index, row_data in things_to_match_df.iterrows():
@@ -116,4 +117,3 @@ class SpartaERDFormat(Logger):
             things_to_match_df.loc[index, 'course_id'] = staff_id
         things_to_match_df.drop(columns=['staff_name', 'course_name'], inplace=True)
         return things_to_match_df  # should have junction DF of IDs now
-
