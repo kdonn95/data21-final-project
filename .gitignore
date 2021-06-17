@@ -128,5 +128,25 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-.idea/
-.vscode/
+
+# IDE Settings
+
+.idea
+.vscode
+
+#transform test file
+# transform_applicants_csv.py
+cliff_notes.py
+abc.py
+code_dump.py
+*Pipfile
+*.lock
+user_story_11_and_7.py
+# My folder for working:
+work/
+
+#password file
+password.ini
+
+#csv log
+applicants_CSVs_df_transorm.log
