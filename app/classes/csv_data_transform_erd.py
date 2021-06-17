@@ -16,7 +16,8 @@ class TransformCSVdataFrames(Logger):
 
     def academy_csv_scores_and_course_dfs_setup(self):
         # scores SQL table data retrieval - more difficult
-        course_table_df_cols = ['course_type', 'course_name', 'course_start_date', 'duration_weeks']
+        # note: 'type' refers to course
+        course_table_df_cols = ['type', 'course_name', 'course_start_date', 'duration_weeks']
         course_table_df = pd.DataFrame(columns=course_table_df_cols)
         all_courses_new_df_is_empty = True
         all_courses_score_values_df = pd.DataFrame()

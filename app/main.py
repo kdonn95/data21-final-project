@@ -25,12 +25,16 @@ dfs_in_erd_format = SpartaERDFormat(engine, config.logging_level)
 weekly_performance_df = dfs_in_erd_format.make_weekly_performance_table()
 course_df = dfs_in_erd_format.make_course_table()
 course_type_df = dfs_in_erd_format.make_course_type_table()
+staff_append_entries_df = dfs_in_erd_format.make_staff_table_entries()
+staff_course_junc_df = dfs_in_erd_format.get_ids_for_staff_course_junc()
 
 # academy CSV data: loading DFs to SQL database tables
 academy_load_to_sql = LoadAcademyTables(engine, config.logging_level)
 academy_load_to_sql.load_to_sql_table(weekly_performance_df, 'weekly_performance')
 academy_load_to_sql.load_to_sql_table(course_df, 'course')
 academy_load_to_sql.load_to_sql_table(course_type_df, 'course_type')
+academy_load_to_sql.load_to_sql_table(staff_append_entries_df, 'staff')
+academy_load_to_sql.load_to_sql_table(staff_course_junc_df, 'course_staff_junction')
 
 # Adding txt file data into sql database.
 txt_pipeline = TextFilePipeline(engine, config.logging_level)
