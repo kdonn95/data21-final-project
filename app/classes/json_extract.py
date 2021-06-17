@@ -30,8 +30,8 @@ class JsonExtract(Logger):
         new_keylist = list(set(keylist) ^ set(self.used_keylist_in))
         new_keylist.sort()
         outlist = []
-        for i in range(0, len(new_keylist), 20):
-            chunk = new_keylist[i:i + 20]
+        for i in range(0, len(new_keylist), 3105):
+            chunk = new_keylist[i:i + 3105]
             outlist.append(chunk)
         self.used_keylist_out = new_keylist
         return outlist

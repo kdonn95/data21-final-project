@@ -2,7 +2,6 @@ import datetime
 import pandas as pd
 from app.classes.logger import Logger
 
-
 class JsonTransform(Logger):
     def __init__(self, logging_level):
         Logger.__init__(self, logging_level)
@@ -31,21 +30,24 @@ class JsonTransform(Logger):
 
     def clean_text(self, text):
         self.log_print(f"fix apostrophes", 'DEBUG')
-        return text.replace("`", "'")\
-            .replace("´", "'")\
-            .replace("‘", "'")\
-            .replace("’", "'")\
+        return text.replace("`", "''")\
+            .replace("´", "''")\
+            .replace("‘", "''")\
+            .replace("’", "''") \
             .title()
 
     def convert_date(self, value):
         self.log_print(f"{value} to datetime", 'DEBUG')
+        value = value.replace('//','/')
         return datetime.date(
-            int(value[6:11]), int(value[3:5]), int(value[0:2]))
+            int(value[6:11].replace('/','')),
+            int(value[3:5].replace('/','')),
+            int(value[0:2].replace('/','')))
 
     def transform_to_df(self, page):
         """takes untransformed df of json data and
         applies transformations on each column"""
-        page = page.fillna(0)
+        page = pd.DataFrame(page).fillna(0)
         # Cleans each name and then adds to empty dictionary
         # (which will be turned to dataframe later)
         for name in page['name']:
