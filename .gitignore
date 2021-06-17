@@ -147,3 +147,6 @@ work/
 
 #password file
 password.ini
+
+#csv log
+applicants_CSVs_df_transorm.log
