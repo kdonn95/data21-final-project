@@ -1,5 +1,5 @@
 from app.classes.text_file_pipeline import TextFilePipeline
-
+import pandas as pd
 
 
 class loadApplicantsCSVs(TextFilePipeline):
@@ -28,16 +28,17 @@ class loadApplicantsCSVs(TextFilePipeline):
                                       department
                                   )  
                                   VALUES(
-                                      "{name}","talent"
+                                      '{name}','talent'
                                   )
                                  ''')
     
     def insert_staff_id(self,dataframe):
-        candidate_table = dataframe['staff_id'] = 0
+        # candidate_table = dataframe['staff_id'] = [0 for i in range (len(dataframe))]
+        dataframe['staff_id'] = [0 for i in range (len(dataframe))]
+        candidate_table = dataframe
 
-    
         for index in list(candidate_table.index):
-            name = candidate_table.loc[index, "staff_name"].title()
+            name = str(candidate_table.loc[index, "staff_name"]).title()
             self.log_print(name, "DEBUG")
 
 
@@ -83,37 +84,47 @@ class loadApplicantsCSVs(TextFilePipeline):
             if data_frame.loc[index, "candidate_name"] in names_list_db:
                 index_to_drop.append(index)
 
+                if str(data_frame.loc[index, 'dob']) == 'NaT':
+                    dob = 'NULL'
+                else:
+                    dob = "'"+str(data_frame.loc[index, 'dob'])+"'"
+
+                if str(data_frame.loc[index, 'staff_id']) == 'nan':
+                    staff_id = 'NULL'
+                else:
+                    staff_id = data_frame.loc[index, 'staff_id']
                 # Updating candidate details in candidate table.
                 self.engine.execute(f"""
                     UPDATE candidate
                     SET
-                        gender = "{data_frame.loc[index,'gender']}"
-                        dob = "{data_frame.loc[index,'dob']}"
-                        email = "{data_frame.loc[index,'email']}"
-                        city = "{data_frame.loc[index,'city']}"
-                        address = "{data_frame.loc[index,'address']}"
-                        postcode = "{data_frame.loc[index,'postcode']}"
-                        phone_number = "{data_frame.loc[index,'phone_number']}"
-                        uni_name = "{data_frame.loc[index,'uni_name']}"
-                        degree_result = "{data_frame.loc[index,'degree_result']}"
-                        staff_id = "{data_frame.loc[index,'staff_id']}"
+                        gender = '{data_frame.loc[index,'gender']}',
+                        dob = {dob},
+                        email = '{data_frame.loc[index,'email']}',
+                        city = '{data_frame.loc[index,'city']}',
+                        address = '{data_frame.loc[index,'address']}',
+                        postcode = '{data_frame.loc[index,'postcode']}',
+                        phone_number = '{data_frame.loc[index,'phone_number']}',
+                        uni_name = '{str(data_frame.loc[index,'uni_name']).replace("'", "''")}',
+                        degree_result = '{data_frame.loc[index,'degree_result']}',
+                        staff_id = {staff_id}
                        
-                    WHERE candidate_name = '{data_frame.loc[index, "candidate_name"]}' 
+                    WHERE candidate_name = '{str(data_frame.loc[index, 'candidate_name']).replace("'", "''")}' 
 
                     """)
 
         # Removing the rows which which had have been entered into the database.
         df = data_frame.drop(index_to_drop)
     
+        self.log_pprint(df, 'INFO')
 
         # Loads dataframe into sql database.
         if len(df) > 0:
             df.to_sql("candidate", self.engine, if_exists='append', index=False)
-
+        self.log_print('done', 'INFO')
     
-    def load_into_sparta_day(self,dataframe):
+    def load_into_sparta_day(self,data_frame):
 
-        data_frame = dataframe[['candidate_name','date']]
+        data_frame = data_frame[['candidate_name','date']][pd.notnull(data_frame['date'])]
 
 
         id_date_list = list(self.engine.execute("""
@@ -121,15 +132,16 @@ class loadApplicantsCSVs(TextFilePipeline):
                                                     FROM sparta_day
                                                     """))
 
-        data_frame = data_frame['candidate_id'] = 0
+        data_frame['candidate_id'] = [0 for i in range(len(data_frame))]
+
 
         for index in list(data_frame.index):
             name = data_frame.loc[index,'candidate_name']
              # Updating candidate's ID 
-            candidate_id = self.__get_candidate_id(name)
+            candidate_id = self.get_candidate_id(name)
             data_frame.loc[index, "candidate_id"] = candidate_id
 
-        data_frame = dataframe.drop(columns="candidate_name")
+        data_frame = data_frame.drop(columns="candidate_name")
 
         index_to_drop = []
         for index in list(data_frame.index):

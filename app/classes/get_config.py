@@ -33,5 +33,4 @@ class GetConfig():
         self.password = __config['SERVER DETAILS']['PASSWORD']
 
         self.logging_level = __config['LOGGING DETAILS']['LOGGING LEVEL']
-
         self.s3_bucket = __config['S3 DETAILS']['BUCKET NAME']
