@@ -134,6 +134,14 @@ dmypy.json
 .idea
 .vscode
 
+#transform test file
+# transform_applicants_csv.py
+cliff_notes.py
+abc.py
+code_dump.py
+*Pipfile
+*.lock
+user_story_11_and_7.py
 # My folder for working:
 work/
 
