@@ -2,8 +2,6 @@ from string import punctuation
 import pandas as pd
 import re
 from datetime import datetime
-from tabulate import tabulate
-from pprint import pprint
 from fuzzywuzzy import process
 
 
