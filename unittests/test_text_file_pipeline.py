@@ -3,7 +3,7 @@ from app.main import engine
 import pandas as pdpytest
 from datetime import datetime
 
-pipeline = TextFilePipeline(engine, "DEBUG")
+pipeline = TextFilePipeline(engine, "INFO")
 bucket_name = "data21-final-project"
 key = "Talent/Sparta Day 10 January 2019.txt"
 
