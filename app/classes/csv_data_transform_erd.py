@@ -16,7 +16,7 @@ class TransformCSVdataFrames(Logger):
 
     def academy_csv_scores_and_course_dfs_setup(self):
         # scores SQL table data retrieval - more difficult
-        course_table_df_cols = ['course_type', 'course_name', 'course_start_date', 'duration_weeks']
+        course_table_df_cols = ['course_type', 'course_name', 'start_date', 'duration']
         course_table_df = pd.DataFrame(columns=course_table_df_cols)
         all_courses_new_df_is_empty = True
         all_courses_score_values_df = pd.DataFrame()
@@ -42,8 +42,9 @@ class TransformCSVdataFrames(Logger):
                         # rename columns
                         scores_weeks_dict[week_num].rename(columns={'name': 'spartan_name', 'trainer': 'trainer_name',
                                                                     col_name: sparta_attribute}, inplace=True)
+                        scores_weeks_dict[week_num]['spartan_name'] = scores_weeks_dict[week_num]['spartan_name'].str.replace("'", "''")
                         # add week and course columns to comply with ERD format
-                        scores_weeks_dict[week_num]['week_number'] = week_num
+                        scores_weeks_dict[week_num]['week_no'] = week_num
                         scores_weeks_dict[week_num]['course_name'] = ac_fields[0] + ' ' + ac_fields[1]
                     else:  # i.e., if new DF already has data for this week -> add this column to the new DF
                         scores_weeks_dict[week_num][sparta_attribute] = df_to_transform[col_name]
@@ -67,7 +68,7 @@ class TransformCSVdataFrames(Logger):
                     all_courses_score_values_df = pd.concat([all_courses_score_values_df,
                                                              scores_weeks_dict[week_key]], ignore_index=True)
         # course start date: convert to pandas date format
-        course_table_df['course_start_date'] = pd.to_datetime(course_table_df['course_start_date']).dt.date
+        course_table_df['start_date'] = pd.to_datetime(course_table_df['start_date']).dt.date
         # rearrange columns in all_courses_score_values_df
         current_col_list = all_courses_score_values_df.columns.to_list()
         new_cols_list = current_col_list[:2] + current_col_list[3:5] + [current_col_list[2]] + current_col_list[5:]

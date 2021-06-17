@@ -138,6 +138,7 @@ dmypy.json
 # transform_applicants_csv.py
 cliff_notes.py
 abc.py
+code_dump.py
 *Pipfile
 *.lock
 user_story_11_and_7.py

@@ -99,10 +99,12 @@ class transformAppCSV:
             self.talent_csv_df_dict[key]['invite_date'] = (self.talent_csv_df_dict[key]['invite_year']+' '+\
                                                       self.talent_csv_df_dict[key]['month_short']+' '+\
                                                       self.talent_csv_df_dict[key]['invited_date']).astype('datetime64')
+            self.talent_csv_df_dict[key]['invite_date'] = self.talent_csv_df_dict[key]['invite_date'].astype('object')
             
             #----------------------------------------------------------------------------------------------------------------------------------------------
-            # cleaning the date of birth column 
-            self.talent_csv_df_dict[key]['dob'] = pd.to_datetime(self.talent_csv_df_dict[key]['dob'], format='%d/%m/%Y')
+            # cleaning the date of birth column
+            self.talent_csv_df_dict[key]['dob'] = pd.to_datetime(self.talent_csv_df_dict[key]['dob'], format='%d/%m/%Y').dt.date
+            # self.talent_csv_df_dict[key]['dob'][self.talent_csv_df_dict[key]['dob'] == 'NaT'] = 'Null'
           
 
 

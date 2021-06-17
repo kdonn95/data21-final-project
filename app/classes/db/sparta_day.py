@@ -8,8 +8,7 @@ class SpartaDay(SqlAlchemyBase):
 
     candidate_id = Column(Integer, 
                         ForeignKey('candidate.candidate_id'), primary_key=True)
-    location_id = Column(Integer,
-                          ForeignKey('location.location_id'), primary_key=True)
+    location_id = Column(Integer, ForeignKey('location.location_id'))
     date = Column(Date, primary_key=True)
     result = Column(Boolean)
     self_development = Column(Boolean)
