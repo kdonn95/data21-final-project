@@ -21,20 +21,6 @@ engine = global_init(conn_str, config.database, config.logging_level)
 #//////////////////////////////////////////////////
 
 from app.classes.json_load import JsonLoad
-from app.classes.json_transform import JsonTransform
-from app.classes.json_extract import JsonExtract
-
-
-#
-# engine.execute(f"DELETE FROM candidate WHERE candidate_name = 'jason bason'")
-#
-#jl = JsonLoad(engine, config.logging_level)
-from tabulate import tabulate
-# print(jl.insert_candidate_return_id('jason bason'))
-#
-# query = engine.execute(f"SELECT * FROM candidate WHERE candidate_name = 'jason bason'")
-# print('AAAA:',query.fetchall())
-
 
 jl = JsonLoad(engine, config.logging_level)
 jl.dev_json_ETL([])

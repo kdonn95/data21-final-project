@@ -35,52 +35,40 @@ class JsonLoad(JsonExtract, JsonTransform):
         self.engine.execute(f"INSERT INTO candidate (candidate_name) VALUES ('{candidate_name}')")
         self.log_print(f'insert {candidate_name} as new candidate in candidate', "INFO")
         candidate_id = self.engine.execute(
-            f"SELECT candidate_id FROM candidate WHERE candidate_name = '{candidate_name}'")
+            f"SELECT candidate_id FROM candidate WHERE candidate_name = '{candidate_name}'").fetchone()
         return candidate_id
 
     def check_candidate_exists(self, name):
         return self.engine.execute(
-            f"SELECT * FROM candidate WHERE candidate_name = '{name}'").fetchone()
+            f"SELECT * FROM candidate_id WHERE candidate_name = '{name}'").fetchone()
 
-    def prep_sparta_day(self, transformed_df):
-        name = self.check_candidate_exists(transformed_df['name'])
-        if len(list(name)) > 1:
-            self.log_print(f'insert {name} as new weakness in weaknesses',
-                           "INFO")
-            pass
-        else:
+    def prep_sparta_day(self, transformed_df, candidate_id):
             boolean_lst = []
             boolean_lst.append(transformed_df['self_dev'])
             boolean_lst.append(transformed_df['geo_flex'])
             boolean_lst.append(transformed_df['finance_support'])
             boolean_lst.append(transformed_df['result'])
-            self.insert_sparta_day(transformed_df['name'], boolean_lst,
+            self.insert_sparta_day(candidate_id, boolean_lst,
                                    transformed_df['date'],
                                    transformed_df['course_interest'])
 
-    def insert_sparta_day(self, name, bool_lst, date, course_interest):
-        if self.check_candidate_exists(name):
-            candidate_id = self.check_candidate_exists(name)
-            return self.engine.execute(f"INSERT INTO sparta_day "
+    def insert_sparta_day(self, candidate_id, bool_lst, date, course_interest):#
+        candidate_id = candidate_id[0]
+        return self.engine.execute(f"INSERT INTO sparta_day "
                                        f"(candidate_id, "
-                                       f"location_id, "
                                        f"date, "
                                        f"self_development, "
                                        f"geo_flex, "
                                        f"financial_support, "
                                        f"result,"
                                        f"course_interest) "
-                                       f"VALUES ('{candidate_id}', "
-                                       f"'1', "
+                                       f"VALUES ({candidate_id}, "
                                        f"'{date}',"
                                        f"'{bool_lst[0]}', "
                                        f"'{bool_lst[1]}', "
                                        f"'{bool_lst[2]}', "
                                        f"'{bool_lst[3]}',"
                                        f"'{course_interest}')")
-        else:
-            self.insert_new_candidate(name)
-            self.insert_sparta_day(name, bool_lst, date, course_interest)
 
     def populate_strengths_table(self, strength):
         """Checks whether a strength is already available in the strengths
@@ -89,7 +77,7 @@ class JsonLoad(JsonExtract, JsonTransform):
         is_empty = self.engine.execute(f"SELECT * FROM strengths WHERE "
                                        f"strength = "
                                        f"'{strength}'").fetchall()
-        self.log_print(is_empty, "INFO")
+        self.log_print(is_empty, "DEBUG")
         if not is_empty:
             return self.insert_new_strength(strength)
         else:
@@ -128,11 +116,20 @@ class JsonLoad(JsonExtract, JsonTransform):
 
     def row_iterator(self, transformed_df):
         #for row in df
-        for i in range(transformed_df.shape[0]):
-            candidate_id = self.insert_candidate_return_id(transformed_df['name'])
-            self.prep_sparta_day(transformed_df)
-            self.populate_strengths_table(transformed_df['strengths'])
-            self.populate_weaknesses_table(transformed_df['weaknesses'])
+
+        for index, row in transformed_df.iterrows():
+
+            candidate_id = self.insert_candidate_return_id(row['name'])
+            self.prep_sparta_day(row, candidate_id)
+
+            strength_ids = []
+            for strength in row['strengths']:
+                strength_ids.append(self.populate_strengths_table(strength))
+
+            weakness_ids = []
+            for weakness in row['weaknesses']:
+                weakness_ids.append(self.populate_weaknesses_table(weakness))
+
 
 
     def json_ETL(self, used_keys):
