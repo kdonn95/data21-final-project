@@ -157,7 +157,7 @@ class loadApplicantsCSVs(TextFilePipeline):
             data_frame.to_sql("sparta_day", self.engine, if_exists='append', index=False)
 
     
-    def upload_applicants_csv_to_db(self,dataframe):
+    def upload_applicants_csv_to_db(self, dataframe):
 
         self.update_staff_table(dataframe)
 

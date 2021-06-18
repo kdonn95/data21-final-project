@@ -12,8 +12,8 @@ class SpartaERDFormat(Logger):
         Logger.__init__(self, logging_level)
         self.transformed_df = TransformCSVdataFrames(logging_level)
         self.scores_table, self.courses_table = self.transformed_df.academy_csv_scores_and_course_dfs_setup()
-        self.candidates_table = candidate_df
-
+        self.scores_df = self.transformed_df.identify_academy_dropout_rows(self.scores_table)
+        self.candidates_table = candidate_df  # import candidate table
         # Setting up connection to sql server.
         self.engine = engine
         factory = sessionmaker(bind=self.engine)
@@ -37,6 +37,14 @@ class SpartaERDFormat(Logger):
         course_type_df = self.make_course_type_table()
         # note: courses_table cols: ['type', 'course_name', 'course_start_date', 'duration_weeks']
         course_df = course_type_df.merge(self.courses_table, left_on='type', right_on='type')
+        course_type_id_type_list = list(self.engine.execute("""SELECT course_type_id, type FROM course_type"""))
+        for index, row_data in course_df.iterrows():
+            course_type = course_df.loc[index, 'course_type']
+            for i in course_type_id_type_list:
+                if course_type == i[1]:
+                    course_type_id = i[0]
+                    break
+            course_df.loc[index, 'course_type_id'] = course_type_id
         # done with 'course_type' column and it's not in this table per the ERD, so let's drop it
         course_df.drop(columns=['type'], inplace=True)
         self.log_print(course_df, 'DEBUG')
@@ -45,11 +53,34 @@ class SpartaERDFormat(Logger):
 
     # get ERD 'weekly performance' table
     def make_weekly_performance_table(self):
+        # get 'course_id' column values from SQL row-by-row
         course_df = self.make_course_table()
-        # get candidates' names
-        candidates_table_trunc = pd.DataFrame(self.candidates_table['candidate_name'].unique(),
-                                              columns=['candidate_name'])
+        course_df['course_id'] = [0 for i in range(len(course_df))]
+        course_id_name_list = list(self.engine.execute("""SELECT course_id, course_name FROM course"""))
+        for index, row_data in course_df.iterrows():
+            course_name = course_df.loc[index, 'course_name']
+            for i in course_id_name_list:
+                if course_name == i[1]:
+                    course_id = i[0]
+                    break
+            course_df.loc[index, 'course_id'] = course_id
+
         # get 'candidate_id' column values from SQL row-by-row
+        # first, get candidates' names (unique values)
+        candidates_df_trunc = pd.DataFrame(self.candidates_table['candidate_name'].unique(), columns=['candidate_name'])
+        candidates_df_trunc['candidate_id'] = [0 for i in range(len(candidates_df_trunc))]
+        candidate_id_name_list = list(self.engine.execute("""SELECT candidate_id, candidate_name FROM candidate"""))
+        for index, row_data in candidates_df_trunc.iterrows():
+            # get candidate name from dataframe
+            candidate_name = candidates_df_trunc.loc[index, 'candidate_name']
+            # match to SQL query result
+            for j in candidate_id_name_list:
+                if candidate_name == j[1]:
+                    candidate_id = j[0]
+                    break
+            # write result to dataframe
+            candidates_df_trunc.loc[index, 'candidate_id'] = candidate_id
+        """
         for index, row_data in candidates_table_trunc.iterrows():
             # get 'candidate_name' from local
             candidate_name = row_data['candidate_name'].replace("'", "''")
@@ -58,31 +89,37 @@ class SpartaERDFormat(Logger):
                 f"SELECT candidate_id FROM candidate WHERE candidate_name = '{candidate_name}'").fetchone()
             # append new column to row in DF
             candidates_table_trunc.loc[index, 'candidate_id'] = candidate_id
-        # get score information
-        weekly_performance_df = self.scores_table.merge(course_df, left_on='course_name', right_on='course_name')
-        # test outputs
-        weekly_perf_cols = ['spartan_name', 'course_id', 'week_no', 'Analytic', 'Independent', 'Determined',
-                            'Professional', 'Studious', 'Imaginative']
-        weekly_performance_df = weekly_performance_df[weekly_perf_cols]
+        """
+        # get score information by merging with course information
+        weekly_performance_df = self.scores_df.merge(course_df, left_on='course_name', right_on='course_name')
+        # get rid of course_name from merge result
+        temp_perf_cols = ['spartan_name', 'course_id', 'week_no', 'Analytic', 'Independent', 'Determined',
+                          'Professional', 'Studious', 'Imaginative']
+        weekly_performance_df = weekly_performance_df[temp_perf_cols]
+
+        # 2nd merge: candidate information, need to merge on candidate_name
         weekly_performance_df.rename(columns={'spartan_name': 'candidate_name'}, inplace=True)
-        # remove candidate_name, replace with candidate ID from candidates table
-        weekly_performance_df = weekly_performance_df.merge(candidates_table_trunc, left_on='candidate_name',
+        weekly_performance_df = weekly_performance_df.merge(candidates_df_trunc, left_on='candidate_name',
                                                             right_on='candidate_name')
+        # remove candidate_name, replace with candidate_id from truncated candidates table
         weekly_perf_cols_final = ['candidate_id', 'course_id', 'week_no', 'Analytic', 'Independent', 'Determined',
-                                  'Professional', 'Studious', 'Imaginative', 'course_name']
+                                  'Professional', 'Studious', 'Imaginative']
         self.log_print(weekly_performance_df[weekly_perf_cols_final], 'DEBUG')
         self.log_print('Debugging WEEKLY_PERFORMANCE table dataframe', 'INFO')
         return weekly_performance_df[weekly_perf_cols_final]
 
     def make_staff_table_entries(self):
-        staff_table_entries = pd.DataFrame(self.scores_table['trainer_name'].unique(), columns=['staff_name'])
+        staff_table_entries = pd.DataFrame(self.scores_df['trainer_name'].unique(), columns=['staff_name'])
         staff_table_entries['department'] = 'training'
+
+        self.log_print(staff_table_entries, 'DEBUG')
+        self.log_print('Debugging STAFF table dataframe', 'INFO')
         return staff_table_entries
 
     def make_staff_course_junc_no_ids(self):
         staff_course_df = pd.DataFrame(self.courses_table['course_name'],
                                        columns=['course_name'])
-        staff_course_df['staff_name'] = self.scores_table['trainer_name']
+        staff_course_df['staff_name'] = self.scores_df['trainer_name']
         staff_df = self.make_staff_table_entries()
         course_df = self.make_course_table()
         staff_course_df.merge(staff_df, left_on='staff_name', right_on='staff_name')
@@ -92,13 +129,15 @@ class SpartaERDFormat(Logger):
         staff_course_df = staff_course_df[temp_cols]
         # also, only want unique course-staff combinations, so drop any duplicates
         staff_course_df = staff_course_df.drop_duplicates()
+        self.log_print(staff_course_df, 'INFO')
+        self.log_print('Debugging COURSE_STAFF_JUNCTION  (1st, pre-match step) table dataframe', 'INFO')
         return staff_course_df  # DF of unique combos of course names and (training) staff names
 
     def get_ids_for_staff_course_junc(self):
         staff_id_name_list = list(self.engine.execute("""SELECT staff_id, staff_name FROM staff"""))
         course_id_name_list = list(self.engine.execute("""SELECT course_id, course_name FROM course"""))
         things_to_match_df = self.make_staff_course_junc_no_ids()
-        # add columms
+        # add columns
         things_to_match_df['course_id'] = [0 for i in range(len(things_to_match_df))]
         things_to_match_df['staff_id'] = [0 for i in range(len(things_to_match_df))]
         for index, row_data in things_to_match_df.iterrows():
@@ -112,7 +151,9 @@ class SpartaERDFormat(Logger):
                 if course_name == j[1]:
                     course_id = j[0]
                     break
-            things_to_match_df.loc[index, 'staff_id'] = course_id
-            things_to_match_df.loc[index, 'course_id'] = staff_id
+            things_to_match_df.loc[index, 'staff_id'] = staff_id
+            things_to_match_df.loc[index, 'course_id'] = course_id
         things_to_match_df.drop(columns=['staff_name', 'course_name'], inplace=True)
+        self.log_print(things_to_match_df, 'DEBUG')
+        self.log_print('Debugging COURSE_STAFF_JUNCTION  (2nd, matching step) table dataframe', 'INFO')
         return things_to_match_df  # should have junction DF of IDs now

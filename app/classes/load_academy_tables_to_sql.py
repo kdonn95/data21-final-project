@@ -10,21 +10,23 @@ class LoadAcademyTables(TextFilePipeline):
     def load_to_sql_table(self, pd_df_to_load, sql_target_table):
         self.log_pprint(sql_target_table, "INFO")
         self.log_pprint(pd_df_to_load, "INFO")
+        """
         if sql_target_table == "course":
+            x = 'course'
             # pd_df_to_load = pd_df_to_load.drop(columns=["course_id"])
-            pd_df_to_load = self.match_id(pd_df_to_load, "course_type_id", "course_type_id", "course_type", "type",
-                                          "type")
+            # pd_df_to_load = self.match_id(pd_df_to_load, "course_type_id", "course_type_id", "course_type", "type", "type")
         elif sql_target_table == "course_type":
             # pd_df_to_load = pd_df_to_load.drop(columns=["course_type_id"])
             # pd_df_to_load = pd.DataFrame(list(pd_df_to_load['course_type']), columns=['type'])
             self.log_pprint(pd_df_to_load, "INFO")
         elif sql_target_table == "weekly_performance":
-            pd_df_to_load = self.match_id(pd_df_to_load, "course_id", "course_id", "course", "course_name",
-                                          "course_name")
-
+            self.log_pprint(pd_df_to_load, "INFO")
+            # pd_df_to_load = self.match_id(pd_df_to_load, "course_id", "course_id", "course", "course_name","course_name")
+        """
         pd_df_to_load.to_sql(sql_target_table, self.engine, if_exists='append', index=False)
         self.log_pprint("done", "INFO")
 
+    # method to retrieve sql-generated IDs
     def match_id(self, dataframe, id_name, sql_id_name, sql_table_name, sql_check, df_check):
         for index in list(dataframe.index):
             self.log_pprint(index, "INFO")

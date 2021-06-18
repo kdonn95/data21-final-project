@@ -73,7 +73,11 @@ class TransformCSVdataFrames(Logger):
         # rearrange columns in all_courses_score_values_df
         current_col_list = all_courses_score_values_df.columns.to_list()
         new_cols_list = current_col_list[:2] + current_col_list[3:5] + [current_col_list[2]] + current_col_list[5:]
+        # rearrange DF to match reordered columns
         all_courses_score_values_df = all_courses_score_values_df[new_cols_list]
+        self.log_print(all_courses_score_values_df, 'DEBUG')
+        self.log_print(course_table_df, 'DEBUG')
+        self.log_print('Debugging dataframe reduction for academy scores, courses', 'INFO')
         return all_courses_score_values_df, course_table_df
 
     # delete rows if and only if all 6 scores
